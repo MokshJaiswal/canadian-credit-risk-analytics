@@ -41,7 +41,8 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
 | # | File | Does |
 | --- | --- | --- |
 | 1 | `src/fetch_rates.py` | Real Bank of Canada rates → `data/rates.csv` (monthly averages) |
-| 2 | `src/simulate_loans.py` | Seeded loan book priced off those rates → `data/` |
+| 2 | `notebooks/simulate_loans.ipynb` | Seeded loan book priced off those rates → `data/loans.csv` |
+| 2b | `notebooks/simulate_performance.ipynb` | Monthly delinquency → default, per loan |
 | 3 | `sql/*.sql` + `src/build_warehouse.py` | Load into DuckDB, build analysis tables, run checks |
 | 4 | Power BI report | Reads exported CSVs; includes a data-quality page |
 | 5 | `README.md` | Business question, findings (query-backed), how to run |
@@ -53,6 +54,11 @@ scraper, pytest, bootstrap scripts.
 ## Working style
 
 - **One file at a time.** Stop after each so the owner can run it.
+- **The owner runs the analysis themselves.** Analysis, wrangling and
+  modelling code goes in Jupyter notebooks (`notebooks/*.ipynb`); SQL goes in
+  `.sql` files. Plain data-fetching stays a `.py` script. Say what each cell
+  should show; they verify by running it. VS Code runs notebooks from the
+  project folder (`jupyter.notebookFileRoot`), so paths are `config/...`, `data/...`.
 - Before each change: 2–3 lines on what and why.
 - After each change: the exact command and what they should see.
 - Branch `build/pipeline`, not `main`.
