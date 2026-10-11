@@ -1,0 +1,108 @@
+# Every tunable in the pipeline lives here. Code reads it via ccra.config.
+#
+# Provenance tags on each value:
+#   [brief]       verified in docs/PROJECT-BRIEF.md
+#   [ASSUMPTION]  a labelled judgement call - change freely, but never quote
+#                 a result that depends on it as if it were a market fact
+#
+# Province codes are QUOTED on purpose: YAML reads a bare ON as boolean true.
+
+seed: 42  # fixed seed so the simulated book is byte-identical across runs
+
+# --- Time window ------------------------------------------------------------
+window:
+  macro_start: "2015-01-01"        # early enough to price the oldest originations
+  origination_start: "2016-01-01"  # 5-yr terms from 2020-22 renew in 2025-27 [brief]
+  performance_start: "2023-04-01"  # 42 monthly snapshots, matching the
+  performance_end: "2026-09-30"    # 42-month default calibration below [brief]
+
+# --- Real macro sources (public, keyless) -----------------------------------
+sources:
+  valet:
+    url: "https://www.bankofcanada.ca/valet/observations/{series}/json"
+    series:                           # all verified IDs [brief]
+      policy_rate: "V39079"
+      prime_rate: "V80691311"
+      goc_5yr_yield: "BD.CDN.5YR.DQ.YLD"
+      posted_5yr_mortgage: "V80691335"  # POSTED sticker rate, not transacted (trap #2)
+  statcan:
+    url: "https://www150.statcan.gc.ca/t1/wds/rest/getFullTableDownloadCSV/{product_id}/en"
+    tables:                           # product IDs [brief]
+      labour_force: "14100287"
+      cpi: "18100004"
+      new_housing_price_index: "18100205"
+      household_debt_to_income: "38100238"
+  retry:
+    max_attempts: 4
+    backoff_seconds: 2   # doubles each retry: 2, 4, 8
+
+# --- Portfolio shape --------------------------------------------------------
+portfolio:
+  n_accounts: 100000  # x 42 months = 4.2M account_month rows; lower if memory is tight
+
+  product_mix:  # share of accounts by count; must sum to 1.0 [ASSUMPTION]
+    mortgage: 0.35
+    heloc: 0.10
+    auto: 0.20
+    card: 0.35
+
+  mortgage_rate_type_mix:  # must sum to 1.0 [ASSUMPTION]
+    fixed: 0.75
+    variable: 0.25
+
+  # Approximate population shares, rounded [ASSUMPTION]; must sum to 1.0.
+  # Verify against StatCan table 17-10-0009 before quoting.
+  regional_shares:
+    "ON": 0.389
+    "QC": 0.220
+    "BC": 0.140
+    "AB": 0.120
+    "MB": 0.036
+    "SK": 0.030
+    "NS": 0.027
+    "NB": 0.021
+    "NL": 0.013
+    "PE": 0.004
+
+# --- Risk and pricing, one section per product ------------------------------
+# Every product in product_mix must appear here (validate_config checks).
+risk:
+  mortgage:
+    target_cum_default_42m: 0.005  # calibration target [brief]
+    fixed_spread_over_goc_5yr: 1.40   # transacted fixed = GoC 5yr + 1.40pp [brief]
+    variable_spread_over_prime: -1.00 # variable priced off prime [ASSUMPTION]
+    fixed_rate_floor: 1.35            # fixed never below ~1.35% [brief]
+    variable_rate_floor: 0.95         # deep-discount variable trough [brief]
+    score_sensitivity_per_100pts: 0.15  # pp off rate per 100 score points [brief]
+    term_months: 60                   # 5-year term [brief]
+    amortization_months: 300          # 25-year amortization [brief]
+    cure_rate: 0.50                   # monthly chance a delinquent account catches up [ASSUMPTION]
+    lgd: 0.10                         # loss given default, secured by house [ASSUMPTION]
+  heloc:
+    target_cum_default_42m: 0.008     # [brief]
+    spread_over_prime: 0.50           # [ASSUMPTION]
+    score_sensitivity_per_100pts: 0.25  # [ASSUMPTION]
+    cure_rate: 0.45                   # [ASSUMPTION]
+    lgd: 0.25                         # [ASSUMPTION]
+  auto:
+    target_cum_default_42m: 0.03      # [brief]
+    spread_over_goc_5yr: 3.50         # [ASSUMPTION]
+    score_sensitivity_per_100pts: 1.50  # [ASSUMPTION]
+    term_months: 72                   # [ASSUMPTION]
+    cure_rate: 0.40                   # [ASSUMPTION]
+    lgd: 0.45                         # [ASSUMPTION]
+  card:
+    target_cum_default_42m: 0.05      # [brief]
+    base_apr: 19.99                   # standard Canadian card APR [ASSUMPTION]
+    score_sensitivity_per_100pts: 5.5 # [brief]
+    cure_rate: 0.30                   # [ASSUMPTION]
+    lgd: 0.85                         # unsecured [ASSUMPTION]
+
+# --- Analysis thresholds ----------------------------------------------------
+analysis:
+  severe_payment_shock_pct: 25  # "At-Risk Exposure" KPI cut-off [brief Part 7]
+
+# --- Data quality gate ------------------------------------------------------
+quality:
+  reconciliation_tolerance_pct: 0.01  # source vs target totals may differ by 0.01%
+  max_null_pct_key_columns: 0.0       # keys must never be null

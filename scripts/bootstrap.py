@@ -5,6 +5,10 @@ Exits 1 if anything fails, so it can gate automation later.
 """
 import importlib
 import sys
+from pathlib import Path
+
+# Let this script find the ccra package even when PYTHONPATH isn't set.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 # Import name -> what it's for. Import names differ from pip names
 # (PyYAML imports as yaml, psycopg2-binary as psycopg2).
@@ -60,9 +64,22 @@ def check_duckdb_query() -> bool:
     return ok
 
 
+def check_config() -> bool:
+    """A green bootstrap should mean the pipeline can start, so load the real config."""
+    try:
+        from ccra.config import CONFIG_PATH, load_config
+
+        load_config()
+    except Exception as error:
+        print(f"FAIL config: {error}")
+        return False
+    print(f"OK   config loads and validates ({CONFIG_PATH.name})")
+    return True
+
+
 if __name__ == "__main__":
     # Run every check (no short-circuit) so one run shows all problems.
-    results = [check_python(), check_imports(), check_duckdb_query()]
+    results = [check_python(), check_imports(), check_duckdb_query(), check_config()]
     if all(results):
         print("\nEnvironment OK")
     else:
