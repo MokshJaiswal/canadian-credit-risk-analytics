@@ -43,11 +43,11 @@ engineer. On Windows. Must be able to explain every line in an interview.
 
 ## Architecture (brief Part 3)
 
-```
+```text
 Bank of Canada Valet + StatCan WDS → ingest → macro.parquet (source-stamped)
       → seeded simulator (macro-driven hazard, roll-rate state machine)
       → borrowers / accounts / account_month
-      → landing schema, verbatim (DuckDB primary locally, Postgres target)
+      → landing schema in DuckDB, verbatim
       → data quality gate (error severity exits non-zero)
       → dbt: staging views → marts star schema + tests
       → Parquet/CSV extracts → Power BI (import mode) + Streamlit
@@ -56,6 +56,20 @@ Bank of Canada Valet + StatCan WDS → ingest → macro.parquet (source-stamped)
 Build steps: 0 env → 1 config → 2 ingest → 3 simulate → 4 warehouse →
 5 quality gate → 6 dbt star schema → 7 export + Power BI → 8 automation + docs
 → 9 lender-rate scraper.
+
+## Decisions that override the brief
+
+- **DuckDB only, no Postgres** (2026-10-11). Supporting both meant two SQL
+  dialects and a database server to run, for no interview value. Write
+  standard SQL; the README can say dbt ports it to Postgres/Snowflake by
+  changing the connection. Ignore brief references to the Postgres target,
+  `dbt-postgres`, and trap #6's dual-dialect macro file.
+- **Entry-level code, even below the brief's bar.** The owner flagged early
+  code as reading "like a senior programmer". Take the version a junior
+  analyst would write: separate pure logic (data in → DataFrame out) from
+  network/file I/O, test the logic with plain inputs, no mocking.
+- **Valet series are averaged to monthly** (not month-end): the rates price
+  originations during the month.
 
 ## Traps a previous attempt hit (detail in brief Part 6)
 
@@ -67,7 +81,7 @@ Build steps: 0 env → 1 config → 2 ingest → 3 simulate → 4 warehouse →
 4. Credit-score pricing sensitivity is product-specific (~0.15/100pts
    mortgage, ~5.5 card) with product-specific rate floors.
 5. `dbt.type_float()` is 4-byte in DuckDB — cast money/rates to `double precision`.
-6. DuckDB ≠ Postgres SQL — isolate dialect differences in one macro file on `target.type`.
+6. DuckDB ≠ Postgres SQL — moot while we're DuckDB-only (see Decisions).
 7. Never `min()` a string to report provenance — use `string_agg(distinct ...)`.
 8. Only SUM a column at the grain it was measured at (dim join fanned out 38×).
 9. Trace one value end to end, source API → dashboard KPI.

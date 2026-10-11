@@ -9,9 +9,6 @@ PyYAML
 duckdb
 dbt-core
 dbt-duckdb
-dbt-postgres
-psycopg2-binary
-sqlalchemy
 
 # Dashboard
 streamlit
