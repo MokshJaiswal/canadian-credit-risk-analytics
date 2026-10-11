@@ -21,8 +21,9 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
 
 ## Rules
 
-1. **Keep it simple.** Write what a junior analyst would write: short scripts,
-   plain functions, pandas, and SQL for anything set-based. No classes,
+1. **Keep it simple.** Write Python the way a data analyst or data engineer
+   writes it, not a software developer: scripts that read top to bottom,
+   pandas, few functions, and SQL for anything set-based. No classes,
    decorators, mocking, retry taxonomies, frameworks or "for later" plumbing.
    If explaining something takes more than a sentence, simplify it.
 2. **Never state a figure the code didn't produce.** Every number in the README
