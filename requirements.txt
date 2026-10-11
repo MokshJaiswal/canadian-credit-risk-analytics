@@ -1,0 +1,22 @@
+# Analysis
+pandas
+numpy
+pyarrow
+requests
+PyYAML
+
+# Warehouse + transformation
+duckdb
+dbt-core
+dbt-duckdb
+dbt-postgres
+psycopg2-binary
+sqlalchemy
+
+# Dashboard
+streamlit
+plotly
+
+# Dev
+black
+pytest

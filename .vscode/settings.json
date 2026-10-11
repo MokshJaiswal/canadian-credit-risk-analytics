@@ -1,0 +1,17 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": ["src"],
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}\\src",
+    // numpy's OpenBLAS reserves a buffer per thread at import (16 on this
+    // machine) and crashed when memory was tight. Our work is pandas, not
+    // matrix maths, so 4 threads costs nothing.
+    "OPENBLAS_NUM_THREADS": "4"
+  },
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/__pycache__": true,
+    ".pytest_cache": true
+  }
+}

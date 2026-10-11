@@ -1,0 +1,22 @@
+# Environment
+.venv/
+.env
+
+# Generated data (large, rebuilt by the pipeline)
+data/
+*.duckdb
+*.duckdb.wal
+
+# dbt build output
+target/
+dbt_packages/
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS
+Thumbs.db
