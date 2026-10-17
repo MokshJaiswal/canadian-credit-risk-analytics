@@ -28,9 +28,9 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
    If explaining something takes more than a sentence, simplify it.
 2. **Never state a figure the code didn't produce.** Every number in the README
    or dashboard must come from a query.
-3. **Never present simulated data as real.** The loan book is generated; the
-   interest rates are real. Every table carries a `source` column, and the
-   dashboard says which is which.
+3. **Never present simulated data as real.** The loan book is generated; interest
+   rates (Bank of Canada), unemployment (StatCan) and mortgage arrears (CBA) are
+   real. Every table carries a `source` column, and the dashboard says which is which.
 4. Simple doesn't excuse wrong. Data is checked with SQL queries in
    `sql/03_quality_checks.sql` (duplicates, nulls, totals reconcile) — that replaces unit
    tests. Tunable numbers live in `config/pipeline.yml` with a comment saying
@@ -41,25 +41,34 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
 | File | Does |
 | --- | --- |
 | `src/fetch_rates.py` | Real Bank of Canada rates → `data/rates.csv` (monthly averages) |
+| `src/fetch_provincial_data.py` | Real StatCan unemployment/population by province + CBA mortgage arrears by region → `data/unemployment.csv`, `data/mortgage_arrears.csv` |
 | `src/logger.py` | Logging to screen + `logs/pipeline.log` |
-| `notebooks/01_simulate_loans.ipynb` | 50k seeded loans priced off real rates → `data/loans.csv` |
-| `notebooks/02_simulate_performance.ipynb` | Monthly roll-rate simulation → `data/loan_months.parquet` |
-| `notebooks/03_build_warehouse.ipynb` | Runs `sql/01-05` in DuckDB (`data/warehouse.duckdb`), quality gate, Q1–Q12, exports |
+| `notebooks/01_simulate_loans.ipynb` | 50k seeded loans priced off real rates; province mix from real CBA mortgage counts → `data/loans.csv` |
+| `notebooks/02_simulate_performance.ipynb` | Monthly roll-rate simulation; hazard × real regional arrears factor (WHERE) × real unemployment over time (WHEN) → `data/loan_months.parquet` |
+| `notebooks/03_build_warehouse.ipynb` | Runs `sql/01-05` in DuckDB (`data/warehouse.duckdb`), quality gate (23 checks), Q1–Q12, validation Q13–Q15, exports |
 | `notebooks/04_analysis_and_charts.ipynb` | pandas + seaborn charts → `images/` |
 | `notebooks/05_default_risk_model.ipynb` | Logistic regression (scikit-learn) |
-| `sql/01..05` | load raw → star schema + analysis → 18 quality checks → business questions → Power BI CSVs |
+| `sql/01..05` | load raw → star schema + analysis + `arrears_validation` → 23 quality checks → Q1–Q15 → Power BI CSVs |
 | `powerbi/data/*.csv` | Committed exports for the dashboard |
 | `docs/POWERBI_GUIDE.md` | Dashboard model, DAX, pages, expected values (from Q12) |
 | `README.md` | Findings — every number cites a query (Q1–Q12) |
 
 The owner builds the Power BI report themselves from the guide. Later: dbt port of `sql/`.
 
-Out of scope: Postgres, StatCan, Streamlit, GitHub Actions, the lender-rate
-scraper, pytest, bootstrap scripts.
+Out of scope: Postgres, Streamlit, GitHub Actions, the lender-rate scraper,
+pytest, bootstrap scripts, foreclosure-timeline modelling.
 
-**If any number changes** (config, simulation, SQL): re-run notebooks 01→05,
-then update README findings and the expected values in `docs/POWERBI_GUIDE.md`
-from Q12 / Q1–Q10. Notebook sources are edited as notebooks (cells), not `.py`.
+**Real-data design (2026-10-17):** real arrears and real unemployment correlate
+over TIME (0.69) but not across REGIONS (−0.29), so regional risk comes from the
+CBA arrears level (calibrated: the regional match is NOT a validation) and timing
+from national unemployment (the trend vs real arrears IS the validation: quarterly
+corr 0.41, level 0.41× real). Report these gaps; don't tune them away.
+
+**If any number changes** (config, simulation, SQL): run both fetch scripts, re-run
+notebooks 01→05, then update README findings, `docs/PROJECT_EXPLAINED.md`, the
+narrated presentation (claude.ai artifact), and the expected values in
+`docs/POWERBI_GUIDE.md` from Q1–Q15. Notebook sources are edited as notebooks
+(cells), not `.py`.
 
 ## Lessons from the build (don't repeat)
 
@@ -71,6 +80,12 @@ from Q12 / Q1–Q10. Notebook sources are edited as notebooks (cells), not `.py`
   "rows per loan" leaks the target).
 - VS Code's SQL Server extension flags valid DuckDB syntax; its error checking is
   off in `.vscode/settings.json`.
+- The CBA arrears file lags ~2 months behind the window and its URL contains the
+  month (`config/pipeline.yml`). Keep what exists, never fill gaps.
+- `.gitignore`: comments must be on their own line, and ignore only `/data/`
+  (a bare `data/` also hid `powerbi/data/`, which IS committed).
+- In PowerShell, `R` is an alias (Invoke-History) — don't name helper functions `R`.
+  For long multi-line doc edits, use a small Python find/replace script.
 
 ## Working style
 
