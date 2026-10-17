@@ -1,0 +1,5 @@
+product,product_name,secured,loss_given_default,sort_order
+mortgage,Mortgage,Secured,0.1,1
+heloc,HELOC,Secured,0.25,2
+auto,Auto loan,Secured,0.45,3
+card,Credit card,Unsecured,0.85,4

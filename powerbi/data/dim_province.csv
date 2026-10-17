@@ -1,0 +1,11 @@
+province,province_name,region,cba_region,real_arrears_factor
+ON,Ontario,Central,Ontario,0.8853055293922119
+QC,Quebec,Central,Quebec,0.7819544240234889
+BC,British Columbia,West,British Columbia,0.8509306459712898
+AB,Alberta,Prairies,Alberta,1.376670039256614
+MB,Manitoba,Prairies,Manitoba,1.4862037310621432
+SK,Saskatchewan,Prairies,Saskatchewan,2.579624082277188
+NS,Nova Scotia,Atlantic,Atlantic,1.2796547068488993
+NB,New Brunswick,Atlantic,Atlantic,1.2796547068488993
+NL,Newfoundland and Labrador,Atlantic,Atlantic,1.2796547068488993
+PE,Prince Edward Island,Atlantic,Atlantic,1.2796547068488993

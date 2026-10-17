@@ -1,0 +1,24 @@
+dimension,check_name,severity,failed_rows,result,checked_at
+completeness,"Every loan has a product, province and credit score",error,0,PASS,2026-10-17 19:02:28.073861-04
+completeness,Every month in the data has all four real rates,error,0,PASS,2026-10-17 19:02:28.073861-04
+completeness,Every renewing mortgage has old and new payment,error,0,PASS,2026-10-17 19:02:28.073861-04
+uniqueness,loan_id is unique in dim_loan,error,0,PASS,2026-10-17 19:02:28.073861-04
+uniqueness,One row per loan per month in fact_loan_month,error,0,PASS,2026-10-17 19:02:28.073861-04
+uniqueness,One row per month in dim_month,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Credit scores between 300 and 900,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Balances are not negative,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Status is one of the six allowed values,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Interest rates between 0% and 30%,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Fixed mortgage rates at or above the config floor (1.35%),warning,0,PASS,2026-10-17 19:02:28.073861-04
+consistency,Every fact row belongs to a known loan,error,0,PASS,2026-10-17 19:02:28.073861-04
+consistency,Every fact month exists in dim_month,error,0,PASS,2026-10-17 19:02:28.073861-04
+consistency,Delinquent balance never exceeds balance,error,0,PASS,2026-10-17 19:02:28.073861-04
+consistency,No loan appears after the month it defaulted,error,0,PASS,2026-10-17 19:02:28.073861-04
+reconciliation,Loan count: source file vs dim_loan,error,0,PASS,2026-10-17 19:02:28.073861-04
+reconciliation,Row count: source file vs fact_loan_month,error,0,PASS,2026-10-17 19:02:28.073861-04
+reconciliation,Total balance: source file vs summary table (within 0.01%),error,0,PASS,2026-10-17 19:02:28.073861-04
+completeness,Unemployment rate for every province in every month of the window,error,0,PASS,2026-10-17 19:02:28.073861-04
+completeness,"Real arrears data for every region, up to the latest CBA month",error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Unemployment rates between 0% and 30%,error,0,PASS,2026-10-17 19:02:28.073861-04
+validity,Real arrears rates between 0% and 5%,error,0,PASS,2026-10-17 19:02:28.073861-04
+reconciliation,CBA regions add up to the CBA Canada total (within 0.5%),warning,0,PASS,2026-10-17 19:02:28.073861-04

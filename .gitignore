@@ -3,7 +3,7 @@
 .env
 
 # Generated data (large, rebuilt by the pipeline)
-data/
+/data/   # top-level data folder only (powerbi/data/ IS committed)
 logs/
 *.duckdb
 *.duckdb.wal
