@@ -4,4 +4,7 @@ pyarrow
 requests
 PyYAML
 duckdb
+matplotlib
+seaborn
+scikit-learn
 ipykernel

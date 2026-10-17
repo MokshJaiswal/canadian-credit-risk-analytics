@@ -4,6 +4,7 @@
 
 # Generated data (large, rebuilt by the pipeline)
 data/
+logs/
 *.duckdb
 *.duckdb.wal
 

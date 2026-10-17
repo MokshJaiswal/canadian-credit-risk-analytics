@@ -32,35 +32,56 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
    interest rates are real. Every table carries a `source` column, and the
    dashboard says which is which.
 4. Simple doesn't excuse wrong. Data is checked with SQL queries in
-   `sql/checks.sql` (duplicates, nulls, totals reconcile) — that replaces unit
+   `sql/03_quality_checks.sql` (duplicates, nulls, totals reconcile) — that replaces unit
    tests. Tunable numbers live in `config/pipeline.yml` with a comment saying
    where each came from.
 
-## The plan
+## What exists (built and verified 2026-10-17)
 
-| # | File | Does |
-| --- | --- | --- |
-| 1 | `src/fetch_rates.py` | Real Bank of Canada rates → `data/rates.csv` (monthly averages) |
-| 2 | `notebooks/simulate_loans.ipynb` | Seeded loan book priced off those rates → `data/loans.csv` |
-| 2b | `notebooks/simulate_performance.ipynb` | Monthly delinquency → default, per loan |
-| 3 | `sql/*.sql` + `src/build_warehouse.py` | Load into DuckDB, build analysis tables, run checks |
-| 4 | Power BI report | Reads exported CSVs; includes a data-quality page |
-| 5 | `README.md` | Business question, findings (query-backed), how to run |
-| later | dbt | Port the `sql/` models to dbt once everything works |
+| File | Does |
+| --- | --- |
+| `src/fetch_rates.py` | Real Bank of Canada rates → `data/rates.csv` (monthly averages) |
+| `src/logger.py` | Logging to screen + `logs/pipeline.log` |
+| `notebooks/01_simulate_loans.ipynb` | 50k seeded loans priced off real rates → `data/loans.csv` |
+| `notebooks/02_simulate_performance.ipynb` | Monthly roll-rate simulation → `data/loan_months.parquet` |
+| `notebooks/03_build_warehouse.ipynb` | Runs `sql/01-05` in DuckDB (`data/warehouse.duckdb`), quality gate, Q1–Q12, exports |
+| `notebooks/04_analysis_and_charts.ipynb` | pandas + seaborn charts → `images/` |
+| `notebooks/05_default_risk_model.ipynb` | Logistic regression (scikit-learn) |
+| `sql/01..05` | load raw → star schema + analysis → 18 quality checks → business questions → Power BI CSVs |
+| `powerbi/data/*.csv` | Committed exports for the dashboard |
+| `docs/POWERBI_GUIDE.md` | Dashboard model, DAX, pages, expected values (from Q12) |
+| `README.md` | Findings — every number cites a query (Q1–Q12) |
+
+The owner builds the Power BI report themselves from the guide. Later: dbt port of `sql/`.
 
 Out of scope: Postgres, StatCan, Streamlit, GitHub Actions, the lender-rate
 scraper, pytest, bootstrap scripts.
 
+**If any number changes** (config, simulation, SQL): re-run notebooks 01→05,
+then update README findings and the expected values in `docs/POWERBI_GUIDE.md`
+from Q12 / Q1–Q10. Notebook sources are edited as notebooks (cells), not `.py`.
+
+## Lessons from the build (don't repeat)
+
+- Each simulation notebook needs its **own seed** (01 uses `seed`, 02 uses `seed + 1`):
+  sharing one made month-1 draws reuse the product-choice draws.
+- DuckDB `GROUP BY` returns rows in no fixed order — add `ORDER BY` before any
+  train/test split or anything that must be reproducible.
+- Model features must not be shaped by the outcome (rows stop after default, so
+  "rows per loan" leaks the target).
+- VS Code's SQL Server extension flags valid DuckDB syntax; its error checking is
+  off in `.vscode/settings.json`.
+
 ## Working style
 
-- **One file at a time.** Stop after each so the owner can run it.
-- **The owner runs the analysis themselves.** Analysis, wrangling and
-  modelling code goes in Jupyter notebooks (`notebooks/*.ipynb`); SQL goes in
-  `.sql` files. Plain data-fetching stays a `.py` script. Say what each cell
-  should show; they verify by running it. VS Code runs notebooks from the
-  project folder (`jupyter.notebookFileRoot`), so paths are `config/...`, `data/...`.
-- Before each change: 2–3 lines on what and why.
-- After each change: the exact command and what they should see.
+- The owner asked (2026-10-17) for whole steps to be built **and verified end to
+  end** by Claude: run every notebook, read the outputs, look at every chart,
+  check numbers against each other. Keep the code entry-level regardless.
+- Analysis, wrangling and modelling go in Jupyter notebooks (`notebooks/*.ipynb`)
+  with markdown explaining each step; set-based logic goes in `sql/*.sql`. Plain
+  data-fetching stays a `.py` script. Only create files that are needed.
+- Notebooks start with a cell that `chdir`s to the project root if run from
+  `notebooks/`, so paths are always `config/...`, `data/...`.
 - Branch `build/pipeline`, not `main`.
 
 ## Domain traps to remember (detail in brief Part 6)

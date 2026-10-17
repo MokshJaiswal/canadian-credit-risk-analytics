@@ -10,6 +10,10 @@ import pandas as pd
 import requests
 import yaml
 
+from logger import get_logger  # src/logger.py (same folder as this script)
+
+log = get_logger("fetch_rates")
+
 config = yaml.safe_load(open("config/pipeline.yml"))
 start_date = config["window"]["macro_start"]
 end_date = config["window"]["performance_end"]  # end of a full month
@@ -18,7 +22,7 @@ series = config["sources"]["valet"]["series"]   # e.g. {"policy_rate": "V39079",
 monthly_tables = []
 
 for rate_name, series_id in series.items():
-    print(f"Fetching {rate_name} ({series_id})")
+    log.info(f"Fetching {rate_name} ({series_id})")
     url = f"https://www.bankofcanada.ca/valet/observations/{series_id}/json"
     response = requests.get(url, params={"start_date": start_date, "end_date": end_date}, timeout=30)
     response.raise_for_status()  # stop with an error if the API call failed
@@ -41,9 +45,14 @@ for rate_name, series_id in series.items():
 rates = pd.concat(monthly_tables, axis=1).reset_index()
 rates["source"] = "Bank of Canada Valet API (real)"
 
+# Every month should have all four rates - stop if any are missing
+missing = rates.isna().sum().sum()
+if missing > 0:
+    raise ValueError(f"{missing} missing rate values - check the API response")
+
 Path("data").mkdir(exist_ok=True)
 rates.to_csv("data/rates.csv", index=False)
 
-print(f"\nSaved data/rates.csv: {len(rates)} months, {rates['month'].min():%Y-%m} to {rates['month'].max():%Y-%m}")
+log.info(f"Saved data/rates.csv: {len(rates)} months, {rates['month'].min():%Y-%m} to {rates['month'].max():%Y-%m}")
 print("\nSpot check, January 2021 (brief says GoC 5yr ~0.43, posted 4.79):")
 print(rates[rates["month"] == "2021-01-01"].to_string(index=False))

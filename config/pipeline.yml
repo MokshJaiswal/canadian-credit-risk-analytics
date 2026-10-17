@@ -97,5 +97,14 @@ risk:
     cure_rate: 0.30                     # [ASSUMPTION]
     lgd: 0.85                           # [ASSUMPTION]
 
+# What raises a loan's monthly chance of missing a payment
+hazard_drivers:
+  # Each 1pp rise in the loan's rate since signing raises the chance by 25%
+  # (2pp -> x1.5). Rate DROPS don't push risk below the base. [ASSUMPTION]
+  rate_increase_per_pp: 0.25
+  # Every 100 points of credit score below the reference doubles the chance;
+  # 100 points above halves it. [ASSUMPTION]
+  score_points_to_double_risk: 100
+
 analysis:
   severe_payment_shock_pct: 25  # "At-Risk Exposure" cut-off [brief]
