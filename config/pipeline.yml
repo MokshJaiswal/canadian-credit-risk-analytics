@@ -29,6 +29,53 @@ sources:
       goc_5yr_yield: "BD.CDN.5YR.DQ.YLD"
       posted_5yr_mortgage: "V80691335"  # POSTED sticker rate, not what people pay
 
+  # Statistics Canada table 14-10-0287 (Labour force characteristics, monthly,
+  # seasonally adjusted). A "coordinate" picks one series:
+  # geography . characteristic . gender . age . statistic . data type
+  statcan:
+    url: "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods"
+    product_id: 14100287
+    geography_member:  # StatCan's member number for each province
+      "CA": 1
+      "NL": 2
+      "PE": 3
+      "NS": 4
+      "NB": 5
+      "QC": 6
+      "ON": 7
+      "MB": 8
+      "SK": 9
+      "AB": 10
+      "BC": 11
+    unemployment_rate_member: 7   # characteristic 7 = unemployment rate (%)
+    population_member: 1          # characteristic 1 = population aged 15+ (thousands)
+
+  # Canadian Bankers Association: residential mortgages 90+ days in arrears,
+  # monthly since 1995, by region. The file name changes each month - update the
+  # month in the URL when a newer file is published.
+  cba_arrears:
+    url: "https://cba.ca/Assets/CanadianBankersAssociation/Documents/Articles/Statistics/stat-mortgages-arrears-july-2026-en.xlsx"
+    sheets:  # region name -> sheet in the Excel file
+      "Canada": "CAN"
+      "Atlantic": "AC"
+      "Quebec": "QC"
+      "Ontario": "ON"
+      "Manitoba": "MB"
+      "Saskatchewan": "SK"
+      "Alberta": "AB"
+      "British Columbia": "BC"
+    province_region:  # CBA reports the four Atlantic provinces together
+      "NL": "Atlantic"
+      "PE": "Atlantic"
+      "NS": "Atlantic"
+      "NB": "Atlantic"
+      "QC": "Quebec"
+      "ON": "Ontario"
+      "MB": "Manitoba"
+      "SK": "Saskatchewan"
+      "AB": "Alberta"
+      "BC": "British Columbia"
+
 portfolio:
   n_loans: 50000
 
@@ -40,18 +87,9 @@ portfolio:
 
   mortgage_fixed_share: 0.75  # the rest are variable [ASSUMPTION]
 
-  # Approximate population shares [ASSUMPTION]; sums to 1.0
-  regional_shares:
-    "ON": 0.389
-    "QC": 0.220
-    "BC": 0.140
-    "AB": 0.120
-    "MB": 0.036
-    "SK": 0.030
-    "NS": 0.027
-    "NB": 0.021
-    "NL": 0.013
-    "PE": 0.004
+  # Province shares are no longer typed in here: notebook 01 computes them from
+  # the REAL number of mortgages by region (CBA), splitting Atlantic Canada by
+  # real population (StatCan). The same shares are used for every product. [ASSUMPTION]
 
   credit_score:  # normal distribution, clipped to 300-900 [ASSUMPTION]
     mean: 720
@@ -105,6 +143,12 @@ hazard_drivers:
   # Every 100 points of credit score below the reference doubles the chance;
   # 100 points above halves it. [ASSUMPTION]
   score_points_to_double_risk: 100
+  # Two REAL multipliers (notebook 02, data from src/fetch_provincial_data.py):
+  #   WHERE = region's real 90+ arrears rate / Canada's   (CBA, calibrated)
+  #   WHEN  = Canada's unemployment this month / its window average   (StatCan)
+  # Real data showed unemployment tracks arrears over TIME (corr 0.69) but not
+  # across REGIONS (corr -0.29), hence two separate factors. Risk proportional
+  # to each factor is an [ASSUMPTION].
 
 analysis:
   severe_payment_shock_pct: 25  # "At-Risk Exposure" cut-off [brief]

@@ -39,19 +39,49 @@ LEFT JOIN raw.rates AS r
     ON r.month = CAST(m.month AS DATE);
 
 
+-- cba_region: how the Canadian Bankers Association groups provinces in its
+-- arrears data (it reports the four Atlantic provinces together).
+-- real_arrears_factor: the region's REAL 90+ arrears rate over our window,
+-- divided by Canada's. Saskatchewan's mortgages fall behind far more often than
+-- Quebec's, whatever their unemployment. Notebook 02 uses the same factor.
 CREATE OR REPLACE TABLE mart.dim_province AS
-SELECT * FROM (VALUES
-    ('ON', 'Ontario',                   'Central'),
-    ('QC', 'Quebec',                    'Central'),
-    ('BC', 'British Columbia',          'West'),
-    ('AB', 'Alberta',                   'Prairies'),
-    ('MB', 'Manitoba',                  'Prairies'),
-    ('SK', 'Saskatchewan',              'Prairies'),
-    ('NS', 'Nova Scotia',               'Atlantic'),
-    ('NB', 'New Brunswick',             'Atlantic'),
-    ('NL', 'Newfoundland and Labrador', 'Atlantic'),
-    ('PE', 'Prince Edward Island',      'Atlantic')
-) AS t(province, province_name, region);
+WITH provinces AS (
+    SELECT * FROM (VALUES
+        ('ON', 'Ontario',                   'Central',  'Ontario'),
+        ('QC', 'Quebec',                    'Central',  'Quebec'),
+        ('BC', 'British Columbia',          'West',     'British Columbia'),
+        ('AB', 'Alberta',                   'Prairies', 'Alberta'),
+        ('MB', 'Manitoba',                  'Prairies', 'Manitoba'),
+        ('SK', 'Saskatchewan',              'Prairies', 'Saskatchewan'),
+        ('NS', 'Nova Scotia',               'Atlantic', 'Atlantic'),
+        ('NB', 'New Brunswick',             'Atlantic', 'Atlantic'),
+        ('NL', 'Newfoundland and Labrador', 'Atlantic', 'Atlantic'),
+        ('PE', 'Prince Edward Island',      'Atlantic', 'Atlantic')
+    ) AS t(province, province_name, region, cba_region)
+),
+window_arrears AS (
+    SELECT region, SUM(mortgages_in_arrears) / SUM(total_mortgages) AS arrears_rate
+    FROM raw.mortgage_arrears
+    WHERE CAST(month AS DATE) BETWEEN (SELECT CAST(MIN(month) AS DATE) FROM raw.loan_months)
+                                  AND (SELECT CAST(MAX(month) AS DATE) FROM raw.loan_months)
+    GROUP BY region
+)
+SELECT
+    p.*,
+    a.arrears_rate / (SELECT arrears_rate FROM window_arrears WHERE region = 'Canada') AS real_arrears_factor
+FROM provinces AS p
+JOIN window_arrears AS a ON a.region = p.cba_region;
+
+-- REAL economy by province and month (Statistics Canada). Grain: province + month.
+CREATE OR REPLACE TABLE mart.fact_province_month AS
+SELECT
+    CAST(u.month AS DATE)   AS month,
+    u.province,
+    u.unemployment_rate,
+    u.population_thousands,
+    u.source
+FROM raw.unemployment AS u
+WHERE u.province <> 'CA';
 
 
 CREATE OR REPLACE TABLE mart.dim_product AS
@@ -181,6 +211,8 @@ GROUP BY d.product, d.credit_band;
 -- THE MAIN ANALYSIS: one row per fixed mortgage renewing in 2025-2027
 -- -----------------------------------------------------------------------------
 -- Expected loss (EL) = balance x PD x LGD (loss given default).
+-- PD = the credit band's measured 12-month PD x the region's real arrears factor
+-- (so a Saskatchewan borrower carries more risk than an identical one in Quebec).
 -- Our model says each +1pp of rate raises the chance of missing a payment by
 -- `rate_increase_per_pp` (25%). So at renewal:
 --   stressed PD           = PD x (1 + 0.25 x rate jump in pp)
@@ -223,13 +255,16 @@ WITH renewals AS (
 with_provision AS (
     SELECT
         r.*,
-        p.pd_12m                                  AS base_pd_12m,
-        LEAST(p.pd_12m * (1 + assumption('rate_increase_per_pp') * GREATEST(r.rate_jump_pp, 0)), 1)
+        pr.real_arrears_factor                    AS region_factor,
+        p.pd_12m * pr.real_arrears_factor         AS base_pd_12m,
+        LEAST(p.pd_12m * pr.real_arrears_factor * (1 + assumption('rate_increase_per_pp') * GREATEST(r.rate_jump_pp, 0)), 1)
                                                   AS stressed_pd_12m,
         assumption('lgd_mortgage')                AS loss_given_default
     FROM renewals AS r
     JOIN mart.pd_by_segment AS p
         ON p.product = 'mortgage' AND p.credit_band = r.credit_band
+    JOIN mart.dim_province AS pr
+        ON pr.province = r.province
 ),
 with_loss AS (
     SELECT
@@ -265,3 +300,43 @@ SELECT
 FROM mart.dim_loan AS d
 JOIN mart.loan_outcome AS o USING (loan_id)
 GROUP BY d.vintage_year, d.product;
+
+
+-- -----------------------------------------------------------------------------
+-- VALIDATION: simulated vs REAL mortgage arrears, by CBA region and month
+-- -----------------------------------------------------------------------------
+-- The CBA counts mortgages 3+ months (90+ days) behind. Our equivalent is a
+-- mortgage in the 90 or 120 days-past-due bucket. We store COUNTS, not rates,
+-- so rates can be summed correctly across regions (rate = in_arrears / mortgages).
+-- Real data ends when the CBA's latest file ends, so the last months can be empty.
+CREATE OR REPLACE TABLE mart.arrears_validation AS
+WITH simulated AS (
+    SELECT
+        f.month,
+        p.cba_region                                                  AS region,
+        COUNT(*)                                                      AS simulated_mortgages,
+        SUM(CASE WHEN f.status IN ('90 dpd', '120 dpd') THEN 1 ELSE 0 END) AS simulated_in_arrears
+    FROM mart.fact_loan_month AS f
+    JOIN mart.dim_loan AS d USING (loan_id)
+    JOIN mart.dim_province AS p ON p.province = d.province
+    WHERE d.product = 'mortgage'
+    GROUP BY f.month, p.cba_region
+),
+with_canada AS (
+    SELECT * FROM simulated
+    UNION ALL
+    SELECT month, 'Canada', SUM(simulated_mortgages), SUM(simulated_in_arrears)
+    FROM simulated
+    GROUP BY month
+)
+SELECT
+    s.month,
+    s.region,
+    CAST(s.simulated_mortgages AS INTEGER)   AS simulated_mortgages,
+    CAST(s.simulated_in_arrears AS INTEGER)  AS simulated_in_arrears,
+    CAST(r.total_mortgages AS BIGINT)        AS real_mortgages,
+    CAST(r.mortgages_in_arrears AS BIGINT)   AS real_in_arrears,
+    'Simulated (ours) vs Canadian Bankers Association (real)' AS source
+FROM with_canada AS s
+LEFT JOIN raw.mortgage_arrears AS r
+    ON CAST(r.month AS DATE) = s.month AND r.region = s.region;

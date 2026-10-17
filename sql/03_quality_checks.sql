@@ -94,7 +94,37 @@ SELECT 'reconciliation', 'Total balance: source file vs summary table (within 0.
        CASE WHEN ABS((SELECT SUM(balance) FROM read_parquet('data/loan_months.parquet'))
                    - (SELECT SUM(balance) FROM mart.agg_portfolio_monthly))
                  / (SELECT SUM(balance) FROM read_parquet('data/loan_months.parquet')) <= 0.0001
-            THEN 0 ELSE 1 END;
+            THEN 0 ELSE 1 END
+
+-- REAL PROVINCIAL DATA (Statistics Canada, Canadian Bankers Association) -------
+UNION ALL
+SELECT 'completeness', 'Unemployment rate for every province in every month of the window', 'error',
+       (SELECT COUNT(*) FROM mart.dim_province AS p
+        CROSS JOIN (SELECT DISTINCT month FROM mart.fact_loan_month) AS m
+        LEFT JOIN mart.fact_province_month AS u ON u.province = p.province AND u.month = m.month
+        WHERE u.unemployment_rate IS NULL)
+UNION ALL
+SELECT 'completeness', 'Real arrears data for every region, up to the latest CBA month', 'error',
+       (SELECT COUNT(*) FROM mart.arrears_validation
+        WHERE month <= (SELECT MAX(CAST(month AS DATE)) FROM raw.mortgage_arrears)
+          AND real_in_arrears IS NULL)
+UNION ALL
+SELECT 'validity', 'Unemployment rates between 0% and 30%', 'error',
+       (SELECT COUNT(*) FROM mart.fact_province_month WHERE unemployment_rate NOT BETWEEN 0 AND 30)
+UNION ALL
+SELECT 'validity', 'Real arrears rates between 0% and 5%', 'error',
+       (SELECT COUNT(*) FROM raw.mortgage_arrears WHERE arrears_rate NOT BETWEEN 0 AND 0.05)
+UNION ALL
+-- The CBA's regions should add up to its Canada total. The small gap is the
+-- Territories, which we don't load, so allow 0.5%.
+SELECT 'reconciliation', 'CBA regions add up to the CBA Canada total (within 0.5%)', 'warning',
+       (SELECT COUNT(*) FROM (
+            SELECT month,
+                   SUM(CASE WHEN region = 'Canada' THEN total_mortgages END) AS canada,
+                   SUM(CASE WHEN region <> 'Canada' THEN total_mortgages END) AS regions
+            FROM raw.mortgage_arrears
+            GROUP BY month)
+        WHERE ABS(canada - regions) / canada > 0.005);
 
 
 -- Add a pass/fail column and the time of this run

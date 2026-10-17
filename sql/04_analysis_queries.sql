@@ -48,19 +48,26 @@ GROUP BY term_started
 ORDER BY term_started;
 
 
--- Q4. Which provinces carry the most renewal risk?
+-- Q4. Which provinces carry the most renewal risk? Size (total provision) and intensity
+--     (provision per $1M of balance), with the REAL drivers: arrears factor and unemployment
 SELECT
     p.province_name,
+    ROUND(MAX(p.real_arrears_factor), 2)                         AS real_arrears_factor,
+    ROUND(AVG(u.unemployment_rate), 1)                           AS avg_unemployment_pct,
     COUNT(*)                                                     AS renewing_loans,
     ROUND(SUM(r.balance_at_renewal) / 1e6, 1)                    AS renewing_balance_m,
     ROUND(SUM(r.payment_shock_pct * r.balance_at_renewal) / SUM(r.balance_at_renewal), 1) AS weighted_avg_shock_pct,
     ROUND(SUM(r.incremental_provision), 0)                       AS incremental_provision_cad,
-    ROUND(100.0 * SUM(r.incremental_provision) / SUM(SUM(r.incremental_provision)) OVER (), 1) AS pct_of_total_provision
+    ROUND(100.0 * SUM(r.incremental_provision) / SUM(SUM(r.incremental_provision)) OVER (), 1) AS pct_of_total_provision,
+    ROUND(1e6 * SUM(r.incremental_provision) / SUM(r.balance_at_renewal), 0) AS provision_per_1m_balance
 FROM mart.fact_renewal AS r
 JOIN mart.dim_province AS p USING (province)
+JOIN (SELECT province, AVG(unemployment_rate) AS unemployment_rate
+      FROM mart.fact_province_month
+      WHERE month BETWEEN (SELECT MIN(month) FROM mart.fact_loan_month) AND (SELECT MAX(month) FROM mart.fact_loan_month)
+      GROUP BY province) AS u USING (province)
 GROUP BY p.province_name
 ORDER BY incremental_provision_cad DESC;
-
 
 -- Q5. Does payment shock fall on weaker borrowers? Compare each credit band's share of
 --     the HIGH-SHOCK group (20%+) with its share of ALL renewals. Lift > 1 = over-represented.
@@ -187,3 +194,99 @@ SELECT
     ROUND(SUM(incremental_provision), 0)                                         AS incremental_provision_cad,
     CAST(SUM(CASE WHEN outreach_priority IS NOT NULL THEN 1 ELSE 0 END) AS INTEGER) AS borrowers_still_to_call
 FROM mart.fact_renewal;
+
+
+-- Q13. Does the simulation match REAL mortgage arrears by region?
+--      Real = Canadian Bankers Association (90+ days late). Skips the first 3 months:
+--      every simulated loan starts "current", so nothing can be 90+ days late until month 4.
+WITH window_months AS (
+    SELECT month FROM mart.arrears_validation
+    WHERE region = 'Canada'
+      AND real_mortgages IS NOT NULL
+      AND month >= (SELECT MIN(month) FROM mart.fact_loan_month) + INTERVAL 3 MONTH
+),
+by_region AS (
+    SELECT
+        region,
+        100.0 * SUM(real_in_arrears) / SUM(real_mortgages)           AS real_arrears_pct,
+        100.0 * SUM(simulated_in_arrears) / SUM(simulated_mortgages) AS simulated_arrears_pct
+    FROM mart.arrears_validation
+    WHERE month IN (SELECT month FROM window_months) AND region <> 'Canada'
+    GROUP BY region
+),
+unemployment AS (
+    -- population-weighted, so Atlantic Canada isn't a plain average of four provinces
+    SELECT p.cba_region AS region,
+           SUM(u.unemployment_rate * u.population_thousands) / SUM(u.population_thousands) AS unemployment_pct
+    FROM mart.fact_province_month AS u
+    JOIN mart.dim_province AS p USING (province)
+    WHERE u.month IN (SELECT month FROM window_months)
+    GROUP BY p.cba_region
+)
+SELECT
+    b.region,
+    ROUND(u.unemployment_pct, 1)                                   AS real_unemployment_pct,
+    ROUND(b.real_arrears_pct, 3)                                   AS real_arrears_pct,
+    ROUND(b.simulated_arrears_pct, 3)                              AS simulated_arrears_pct,
+    RANK() OVER (ORDER BY b.real_arrears_pct DESC)                 AS real_rank,
+    RANK() OVER (ORDER BY b.simulated_arrears_pct DESC)            AS simulated_rank
+FROM by_region AS b
+JOIN unemployment AS u USING (region)
+ORDER BY real_rank;
+
+
+-- Q14. Does the simulation follow the REAL national arrears trend? By quarter.
+SELECT
+    year(month)                                                   AS year,
+    quarter(month)                                                AS quarter,
+    ROUND(100.0 * SUM(real_in_arrears) / SUM(real_mortgages), 3)  AS real_arrears_pct,
+    ROUND(100.0 * SUM(simulated_in_arrears) / SUM(simulated_mortgages), 3) AS simulated_arrears_pct
+FROM mart.arrears_validation
+WHERE region = 'Canada'
+  AND real_mortgages IS NOT NULL
+  AND month >= (SELECT MIN(month) FROM mart.fact_loan_month) + INTERVAL 3 MONTH
+GROUP BY year, quarter
+ORDER BY year, quarter;
+
+
+-- Q15. Validation in one row: how closely do simulated and real arrears move together?
+--      corr() = correlation: +1 move together perfectly, 0 unrelated, -1 opposite.
+--      The last two columns compare REAL with REAL: does real unemployment explain real
+--      arrears over time (nationally), and across regions?
+WITH national AS (
+    SELECT
+        v.month,
+        100.0 * v.real_in_arrears / v.real_mortgages               AS real_pct,
+        100.0 * v.simulated_in_arrears / v.simulated_mortgages     AS simulated_pct,
+        u.unemployment_rate                                        AS unemployment_pct
+    FROM mart.arrears_validation AS v
+    JOIN raw.unemployment AS u ON CAST(u.month AS DATE) = v.month AND u.province = 'CA'
+    WHERE v.region = 'Canada'
+      AND v.real_mortgages IS NOT NULL
+      AND v.month >= (SELECT MIN(month) FROM mart.fact_loan_month) + INTERVAL 3 MONTH
+),
+quarterly AS (
+    SELECT year(month) AS y, quarter(month) AS q, AVG(real_pct) AS real_pct, AVG(simulated_pct) AS simulated_pct
+    FROM national
+    GROUP BY y, q
+),
+regions AS (
+    SELECT
+        p.cba_region,
+        AVG(u.unemployment_rate)                                   AS unemployment_pct,
+        AVG(100.0 * r.arrears_rate)                                AS real_pct
+    FROM raw.mortgage_arrears AS r
+    JOIN mart.dim_province AS p ON p.cba_region = r.region
+    JOIN mart.fact_province_month AS u ON u.province = p.province AND u.month = CAST(r.month AS DATE)
+    WHERE CAST(r.month AS DATE) IN (SELECT month FROM national)
+    GROUP BY p.cba_region
+)
+SELECT
+    (SELECT COUNT(*) FROM national)                                AS months_compared,
+    (SELECT ROUND(AVG(real_pct), 3) FROM national)                 AS real_avg_arrears_pct,
+    (SELECT ROUND(AVG(simulated_pct), 3) FROM national)            AS simulated_avg_arrears_pct,
+    (SELECT ROUND(AVG(simulated_pct) / AVG(real_pct), 2) FROM national) AS simulated_to_real_ratio,
+    (SELECT ROUND(corr(real_pct, simulated_pct), 2) FROM national) AS sim_vs_real_monthly_corr,
+    (SELECT ROUND(corr(real_pct, simulated_pct), 2) FROM quarterly) AS sim_vs_real_quarterly_corr,
+    (SELECT ROUND(corr(real_pct, unemployment_pct), 2) FROM national) AS real_arrears_vs_unemployment_over_time,
+    (SELECT ROUND(corr(real_pct, unemployment_pct), 2) FROM regions)  AS real_arrears_vs_unemployment_across_regions;

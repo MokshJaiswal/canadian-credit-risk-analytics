@@ -18,5 +18,9 @@ COPY mart.pd_by_segment         TO 'powerbi/data/pd_by_segment.csv'         (HEA
 COPY (SELECT 'mortgage' AS product, * FROM mart.fact_renewal)
                                 TO 'powerbi/data/fact_renewal.csv'          (HEADER);
 
+-- Real provincial data + validation (simulated vs real arrears)
+COPY mart.fact_province_month TO 'powerbi/data/fact_province_month.csv' (HEADER);
+COPY mart.arrears_validation  TO 'powerbi/data/arrears_validation.csv'  (HEADER);
+
 -- Data quality page
 COPY quality.check_results TO 'powerbi/data/data_quality_checks.csv' (HEADER);
