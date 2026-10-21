@@ -229,6 +229,7 @@ sql/                         01-05: load → build → quality checks → questi
 powerbi/data/                CSVs for the Power BI report
 docs/POWERBI_GUIDE.md        dashboard build guide: model, DAX measures, pages, expected values
 docs/PROJECT_EXPLAINED.md    the whole project explained from scratch
+docs/presentation.html       narrated 42-slide walkthrough (open in Edge; also published online)
 docs/PROJECT-BRIEF.md        background research: Canadian job market, domain explainer
 images/                      charts used in this README
 ```

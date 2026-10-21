@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Narrated walkthrough of the project. Open in Microsoft Edge for the most natural voice.
+     Also published at https://claude.ai/artifact/DLSXiztr97sgXVQhYuEJGF -->
+<title>Renewal Wave, Narrated</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+[hidden] { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+img { max-width: 100%; }
+/* Layout: one slide at a time on a full-height stage; header above, caption + control bar below.
+   Colour: cool ledger-paper neutrals, deep teal ink, Canadian red reserved for shock and risk,
+   amber reserved for anything SIMULATED. */
+:root {
+  --bg: #eef2f1;
+  --surface: #ffffff;
+  --tint: #e2ebe9;
+  --ink: #12292e;
+  --muted: #4f676b;
+  --line: #c6d4d1;
+  --accent: #0d6b67;
+  --risk: #b3242c;
+  --sim: #94660a;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e181a; --surface: #152427; --tint: #1c3135; --ink: #e2ebe9; --muted: #95aaa7;
+    --line: #2b4044; --accent: #52b7af; --risk: #ef6b70; --sim: #ddb052; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e181a; --surface: #152427; --tint: #1c3135; --ink: #e2ebe9; --muted: #95aaa7;
+  --line: #2b4044; --accent: #52b7af; --risk: #ef6b70; --sim: #ddb052; color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--font-body);
+  display: grid; grid-template-rows: auto 1fr auto auto; overflow: hidden;
+}
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header { padding-block: 10px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+header .brand { font: 600 15px/1.2 var(--font-display); letter-spacing: .01em; }
+header .chap { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+header .count { margin-left: auto; font: 500 13px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+main { overflow-y: auto; padding-block: 24px 16px; }
+.slide { max-width: 1060px; margin: 0 auto; display: grid; gap: 18px; }
+.slide.enter { animation: slideIn .45s ease both; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.eyebrow { margin: 0; color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; line-height: 1.12; }
+h1 { font-size: clamp(34px, 6vw, 60px); }
+h2 { font-size: clamp(26px, 3.6vw, 40px); }
+p { margin: 0; max-width: 68ch; }
+.lead { font-size: clamp(17px, 1.8vw, 20px); color: var(--muted); }
+.say { display: none; }
+
+/* Reveal: elements appear when the narration reaches their line */
+[data-s] { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease, box-shadow .3s, background-color .3s; }
+[data-s].on { opacity: 1; transform: none; }
+.card.now, .chip.now, .step.now { box-shadow: 0 0 0 2px var(--accent); }
+tr.now td { background: var(--tint); }
+
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.g5 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; display: grid; gap: 6px; align-content: start; }
+.card h3 { margin: 0; font: 600 17px/1.3 var(--font-body); }
+.card p { color: var(--muted); font-size: 15px; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.big { font: 500 clamp(24px, 3vw, 34px)/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.risk { color: var(--risk); }
+.acc { color: var(--accent); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.analogy { border-left: 3px solid var(--accent); padding: 10px 16px; background: var(--tint); border-radius: 0 8px 8px 0; }
+.analogy .label { color: var(--accent); }
+.badge { display: inline-block; font: 600 11px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; padding: 5px 8px; border-radius: 4px; border: 1px solid currentColor; }
+.badge.real { color: var(--accent); }
+.badge.sim { color: var(--sim); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 15px; }
+.arrow { color: var(--muted); align-self: center; }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; background: var(--tint); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+
+figure { margin: 0; display: grid; gap: 8px; }
+figure img { background: #ffffff; border-radius: 10px; border: 1px solid var(--line); width: 100%; height: auto; }
+figcaption { font-size: 13px; color: var(--muted); }
+
+.formula { font: 500 clamp(18px, 2.4vw, 26px)/1.4 var(--font-mono); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.formula .term { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+
+.steps { display: grid; gap: 8px; counter-reset: step; }
+.step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.step::before { counter-increment: step; content: counter(step); font: 500 15px/34px var(--font-mono); text-align: center; width: 34px; height: 34px; border-radius: 50%; background: var(--tint); color: var(--accent); }
+.step b { font-weight: 600; }
+.step span { color: var(--muted); font-size: 14px; display: block; }
+.step.gate::before { content: "!"; background: var(--risk); color: var(--surface); }
+
+/* Timeline (two clocks) */
+.timeline { display: grid; gap: 10px; }
+.tl-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; }
+.tl-row .label { text-align: right; }
+.tl-bar { height: 34px; border-radius: 6px; background: var(--accent); color: var(--surface); font: 500 13px/34px var(--font-mono); padding-left: 10px; }
+.tl-terms { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.tl-terms div { height: 34px; border-radius: 6px; background: var(--tint); border: 1px solid var(--line); font: 500 12px/32px var(--font-mono); text-align: center; overflow: hidden; }
+.tl-terms div:first-child { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.tl-terms div:nth-child(2) { border-color: var(--risk); color: var(--risk); }
+.tl-axis { display: grid; grid-template-columns: 120px repeat(6, 1fr); font: 500 12px var(--font-mono); color: var(--muted); }
+.tl-axis span:first-child { visibility: hidden; }
+
+/* Donut */
+.donut-wrap { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+.donut { width: min(220px, 60vw); aspect-ratio: 1; max-width: 100%; border-radius: 50%; background: conic-gradient(var(--risk) 0 37.8%, var(--accent) 0 100%); display: grid; place-items: center; }
+.donut::after { content: ""; width: 58%; aspect-ratio: 1; border-radius: 50%; background: var(--bg); }
+.legend { display: grid; gap: 12px; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; vertical-align: middle; }
+
+/* Horizontal bars */
+.bars { display: grid; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: 96px 1fr 70px; gap: 10px; align-items: center; font-size: 14px; }
+.bar-track { height: 22px; background: var(--tint); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 4px; width: 0; transition: width .9s ease; }
+.on .bar-fill, .bar-row.on .bar-fill { width: var(--w); }
+.bar-row .num { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* SVG diagrams */
+.diagram { overflow-x: auto; }
+.diagram svg { width: 100%; min-width: 640px; height: auto; display: block; }
+.svg-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.svg-box.acc { stroke: var(--accent); }
+.svg-box.bad { stroke: var(--risk); }
+.svg-text { fill: var(--ink); font: 600 15px var(--font-body); }
+.svg-small { fill: var(--muted); font: 500 12px var(--font-body); }
+.svg-line { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.svg-cure { stroke: var(--accent); stroke-width: 1.6; fill: none; stroke-dasharray: 5 4; }
+.svg-risk { stroke: var(--risk); stroke-width: 2; fill: none; }
+.svg-acc { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.svg-tint { fill: var(--tint); }
+
+/* Caption + controls */
+.caption { padding-block: 10px; border-top: 1px solid var(--line); background: var(--surface); min-height: 54px; display: flex; align-items: center; }
+.caption p { margin: 0 auto; max-width: 900px; width: 100%; font-size: 16px; }
+.caption[hidden] { display: none; }
+.controls { padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); display: grid; gap: 8px; }
+.progress { height: 4px; background: var(--tint); border-radius: 2px; overflow: hidden; }
+.progress div { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.bar-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, select { font: 500 14px var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-height: 38px; cursor: pointer; }
+button.primary { background: var(--accent); color: var(--surface); border-color: var(--accent); min-width: 96px; font-weight: 600; }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ctl-group { display: flex; gap: 6px; align-items: center; }
+.ctl-group label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.spacer { flex: 1; }
+.hint { font-size: 12px; color: var(--muted); }
+#voice { max-width: 220px; }
+#chapter { max-width: 240px; }
+
+@media (max-width: 640px) {
+  .tl-row { grid-template-columns: 1fr; }
+  .tl-row .label { text-align: left; }
+  .tl-axis { grid-template-columns: repeat(6, 1fr); }
+  .tl-axis span:first-child { display: none; }
+  .bar-row { grid-template-columns: 74px 1fr 56px; }
+  .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-s], .slide.enter, .bar-fill, .progress div { transition: none; animation: none; transform: none; }
+}
+</style>
+</head>
+<body>
+
+
+<header class="wrap">
+  <span class="brand">Canada's Mortgage Renewal Wave</span>
+  <span class="chap" id="chapLabel">Start here</span>
+  <span class="count" id="slideCount">1 / 40</span>
+</header>
+
+<main class="wrap" id="stage">
+
+<!-- ===================== START HERE ===================== -->
+<section class="slide" data-chapter="Start here">
+  <p class="eyebrow">Learning deck · narrated</p>
+  <h1>Canada's Mortgage Renewal Wave</h1>
+  <p class="lead">Your credit risk project, explained from zero. Press <b>Play</b> and listen; the slides build as the voice talks.</p>
+  <div class="grid g3" data-s="1">
+    <div class="card"><span class="label">Part 1</span><h3>Money basics</h3><p>Loans, interest, mortgages, rates, credit scores.</p></div>
+    <div class="card"><span class="label">Part 2</span><h3>Risk and losses</h3><p>Late payments, default, provisions.</p></div>
+    <div class="card"><span class="label">Part 3</span><h3>The project</h3><p>Problem, data, approach, challenges, results.</p></div>
+  </div>
+  <p class="hint" data-s="2">Space = play / pause · ← → = previous / next slide · while paused, click the slide to step one line at a time.</p>
+  <ol class="say">
+    <li>Welcome. This presentation explains your credit risk project from the very beginning.</li>
+    <li>You don't need to know anything about banks, loans, or interest rates. We'll build it up one idea at a time, in three parts: money basics, risk and losses, and then the project itself.</li>
+    <li>Use the space bar to pause, and the arrow keys to move between slides. You can change the voice and the speed at the bottom of the screen.</li>
+    <li>Let's start with the whole story in two minutes.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The big picture">
+  <p class="eyebrow">The big picture</p>
+  <h2>The whole story in one slide</h2>
+  <div class="grid g4">
+    <div class="card" data-s="1"><span class="label">The loan</span><span class="big">25 yrs</span><p>Families borrow to buy a home and repay over 25 years.</p></div>
+    <div class="card" data-s="2"><span class="label">The catch</span><span class="big">5 yrs</span><p>The interest rate is only locked for 5 years, then it's renewed.</p></div>
+    <div class="card" data-s="3"><span class="label">What happened</span><span class="big">~2% → ~5%</span><p>Record-low rates in 2020–22, then a sharp rise.</p></div>
+    <div class="card" data-s="4"><span class="label">The result</span><span class="big risk">Payment shock</span><p>Monthly payments jump at renewal.</p></div>
+  </div>
+  <ol class="say">
+    <li>In Canada, most people who buy a home borrow the money. That loan is called a mortgage.</li>
+    <li>They pay it back over twenty-five years.</li>
+    <li>But the interest rate is only locked for five years. After that, they must renew at whatever the rate is then.</li>
+    <li>Between 2020 and early 2022, rates were at record lows, around two percent. Then they jumped, to around five or six percent.</li>
+    <li>So families who locked in cheap rates are now renewing at much higher ones, and their monthly payment jumps. That jump is called payment shock.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The big picture">
+  <p class="eyebrow">The big picture</p>
+  <h2>Five questions the bank needs answered</h2>
+  <div class="steps">
+    <div class="step" data-s="1"><div><b>Which mortgages renew, and when?</b></div></div>
+    <div class="step" data-s="2"><div><b>How much does each payment go up?</b></div></div>
+    <div class="step" data-s="3"><div><b>Who is likely to struggle?</b></div></div>
+    <div class="step" data-s="4"><div><b>How much money to set aside for losses?</b></div></div>
+    <div class="step" data-s="5"><div><b>Who should the bank call first?</b></div></div>
+  </div>
+  <p data-s="6"><span class="badge real">Real</span> interest rates, unemployment, mortgage arrears &nbsp; + &nbsp; <span class="badge sim">Simulated</span> 50,000 loans</p>
+  <ol class="say">
+    <li>A bank wants to know five things before this happens.</li>
+    <li>First, which mortgages renew, and when?</li>
+    <li>Second, how much does each payment go up?</li>
+    <li>Third, who is likely to struggle?</li>
+    <li>Fourth, how much money should the bank set aside for losses?</li>
+    <li>And fifth, who should the bank call first, to help them before they fall behind?</li>
+    <li>Your project answers all five, using real Canadian data, on interest rates, unemployment and mortgage arrears, and a simulated set of fifty thousand loans.</li>
+  </ol>
+</section>
+
+<!-- ===================== MONEY BASICS ===================== -->
+<section class="slide" data-chapter="Money basics">
+  <p class="eyebrow">Money basics</p>
+  <h2>What a loan is</h2>
+  <div class="grid g4">
+    <div class="card" data-s="1"><span class="label">Principal</span><span class="big">$500,000</span><p>The amount you borrow.</p></div>
+    <div class="card" data-s="2"><span class="label">Interest</span><span class="big">The fee</span><p>Charged on what you owe, every year.</p></div>
+    <div class="card" data-s="2"><span class="label">Interest rate</span><span class="big">5% / yr</span><p>The fee as a percentage.</p></div>
+    <div class="card" data-s="3"><span class="label">Balance</span><span class="big">What's left</span><p>What you still owe right now.</p></div>
+  </div>
+  <div class="analogy" data-s="4"><span class="label">Analogy</span><p>Interest is <b>rent on money</b>. Rent an apartment, pay rent. Rent $500,000 from a bank, pay interest. The rate is the rent price.</p></div>
+  <ol class="say">
+    <li>A loan is money a bank gives you now, which you promise to pay back later, plus a fee.</li>
+    <li>The amount you borrow is the principal. For example, five hundred thousand dollars.</li>
+    <li>The fee is interest. It's charged as a percentage of what you owe, every year. That percentage is the interest rate.</li>
+    <li>What you still owe at any moment is the balance.</li>
+    <li>Here's the easiest way to think about it. Interest is rent on money. You rent an apartment and pay rent for using it. You rent money from a bank and pay interest for using it. The interest rate is the rent price.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Money basics">
+  <p class="eyebrow">Money basics</p>
+  <h2>Where a monthly payment goes</h2>
+  <p class="lead" data-s="1">$500,000 at 1.9%, repaid over 25 years: <b class="mono">$2,095</b> a month.</p>
+  <div class="donut-wrap">
+    <div class="donut" data-s="1" role="img" aria-label="Donut: $792 interest, $1,303 principal"></div>
+    <div class="legend">
+      <div data-s="2"><span class="swatch" style="background:var(--risk)"></span><b class="mono">$792</b> interest, the rent</div>
+      <div data-s="3"><span class="swatch" style="background:var(--accent)"></span><b class="mono">$1,303</b> principal, paying the loan down</div>
+      <p data-s="4" class="card"><span class="label">Amortization</span>As the balance falls, less of each payment is interest and more pays down the loan.</p>
+    </div>
+  </div>
+  <ol class="say">
+    <li>Most loans are repaid in equal monthly payments. Each payment has two parts.</li>
+    <li>Take a five hundred thousand dollar loan at one point nine percent, paid over twenty-five years. The monthly payment is two thousand and ninety-five dollars.</li>
+    <li>In the first month, seven hundred and ninety-two dollars of that is interest. That's the rent.</li>
+    <li>The other one thousand three hundred and three dollars pays down the loan itself.</li>
+    <li>As the balance falls, less goes to interest and more goes to paying down the loan. Paying a loan off like this is called amortization.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Money basics">
+  <p class="eyebrow">Money basics</p>
+  <h2>Percent vs percentage points</h2>
+  <div class="grid g3">
+    <div class="card" data-s="1"><span class="label">Rate goes from 2% to 5%</span><span class="big acc">+3 pp</span><p>Three percentage points.</p></div>
+    <div class="card" data-s="2"><span class="label">Same change, relative</span><span class="big">+150%</span><p>Why bankers avoid "percent" here.</p></div>
+    <div class="card" data-s="3"><span class="label">Basis points</span><span class="big">300 bp</span><p>1 bp = 0.01 percentage points.</p></div>
+  </div>
+  <div class="analogy" data-s="4"><span class="label">Why it matters</span><p>On a $500,000 loan, each percentage point is roughly <b class="mono">$5,000</b> more interest a year.</p></div>
+  <ol class="say">
+    <li>One small but important piece of vocabulary.</li>
+    <li>If a rate goes from two percent to five percent, it rose by three percentage points.</li>
+    <li>But in relative terms, it rose by one hundred and fifty percent. Both describe the same change, which is why bankers avoid saying percent here.</li>
+    <li>They say percentage points, or basis points. One basis point is one hundredth of a percentage point. So three percentage points is three hundred basis points.</li>
+    <li>On a big loan, small rate changes are big money. On five hundred thousand dollars, each percentage point is roughly five thousand dollars more interest a year.</li>
+  </ol>
+</section>
+
+<!-- ===================== MORTGAGES ===================== -->
+<section class="slide" data-chapter="Mortgages">
+  <p class="eyebrow">Mortgages</p>
+  <h2>Two clocks on one mortgage</h2>
+  <div class="timeline">
+    <div class="tl-row" data-s="1"><span class="label">Amortization</span><div class="tl-bar">Paid off over 25 years</div></div>
+    <div class="tl-row" data-s="2"><span class="label">Term (rate lock)</span>
+      <div class="tl-terms"><div>~1.9%</div><div>2026 rate</div><div>term 3</div><div>term 4</div><div>term 5</div></div></div>
+    <div class="tl-axis" data-s="1"><span>.</span><span>2021</span><span>2026</span><span>2031</span><span>2036</span><span>2041</span><span>2046</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card" data-s="3"><span class="label">Renewal</span><p>When a term ends, you sign a new rate at <b>today's</b> rates. You can't keep the old one.</p></div>
+    <div class="card" data-s="4"><span class="label">The gap</span><p>A 25-year mortgage is five separate 5-year rate deals in a row.</p></div>
+  </div>
+  <ol class="say">
+    <li>A mortgage is a loan to buy a home. The home is the collateral. If you stop paying, the bank can sell it.</li>
+    <li>Every Canadian mortgage runs on two different clocks. The first is the amortization: how long until the loan is fully paid off. Usually twenty-five years.</li>
+    <li>The second is the term: how long the interest rate is locked. Usually five years.</li>
+    <li>When a term ends, you renew. You sign a new rate, at whatever rates are at that time. You can't keep the old one.</li>
+    <li>So a twenty-five year mortgage is really five separate five-year rate deals in a row. The gap between those two clocks is the entire project.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Mortgages">
+  <p class="eyebrow">Mortgages</p>
+  <h2>A phone contract for your house</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Phone contract</span><h3>Keep the phone for years</h3><p>The price plan is locked for 2 years. Then you sign a new plan at today's prices.</p></div>
+    <div class="card" data-s="2"><span class="label">Canadian mortgage</span><h3>Keep the house for 25 years</h3><p>The rate is locked for 5 years. Then you renew at today's rates.</p></div>
+  </div>
+  <div class="analogy" data-s="3"><span class="label">Why this is a Canadian problem</span><p>In the US, the most common mortgage locks the rate for all 30 years. Canadians feel rate rises at renewal; Americans mostly don't.</p></div>
+  <ol class="say">
+    <li>Here's an analogy. Think of a phone contract.</li>
+    <li>You keep the phone for years, but the price plan is only locked for a two-year contract. When it ends, you sign a new plan at today's prices.</li>
+    <li>A Canadian mortgage works the same way, except the contract is five years and the phone is your house.</li>
+    <li>This is why the problem is specifically Canadian. In the United States, the most common mortgage locks the rate for all thirty years. So when rates rise, American homeowners mostly don't feel it. Canadian homeowners feel it at renewal.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Mortgages">
+  <p class="eyebrow">Mortgages</p>
+  <h2>Payment shock, worked out</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th class="num">Signed 2021</th><th class="num">Renews 2026</th></tr></thead>
+      <tbody>
+        <tr data-s="1"><td>Balance</td><td class="num">$500,000</td><td class="num" data-s="2">$418,032</td></tr>
+        <tr data-s="1"><td>Rate</td><td class="num">1.9%</td><td class="num" data-s="3">5.0%</td></tr>
+        <tr data-s="1"><td>Years left</td><td class="num">25</td><td class="num" data-s="2">20</td></tr>
+        <tr data-s="1"><td><b>Monthly payment</b></td><td class="num"><b>$2,095</b></td><td class="num risk" data-s="3"><b>$2,759</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid g3" data-s="4">
+    <div class="card"><span class="label">Per month</span><span class="big risk">+$664</span></div>
+    <div class="card"><span class="label">Per year</span><span class="big risk">+$7,966</span></div>
+    <div class="card"><span class="label">Payment shock</span><span class="big risk">+31.7%</span></div>
+  </div>
+  <p class="formula" data-s="5"><span class="term">payment shock</span> = <span class="term">new payment ÷ old payment</span> − 1</p>
+  <ol class="say">
+    <li>Let's work through one family.</li>
+    <li>In 2021 they borrow five hundred thousand dollars over twenty-five years, at one point nine percent. Their payment is two thousand and ninety-five dollars a month.</li>
+    <li>Five years later, they've paid the balance down to about four hundred and eighteen thousand dollars, with twenty years left.</li>
+    <li>They renew at five percent. Their new payment is two thousand seven hundred and fifty-nine dollars a month.</li>
+    <li>That's six hundred and sixty-four dollars more every month. About eight thousand dollars more a year. A thirty-two percent higher payment.</li>
+    <li>Same house. Same family. Same loan. Only the rate changed. That increase is payment shock: the new payment divided by the old payment, minus one.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Mortgages">
+  <p class="eyebrow">Mortgages</p>
+  <h2>Fixed vs variable rates</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Fixed rate</span><h3>Locked for the term, then a jump</h3>
+      <svg viewBox="0 0 300 110" role="img" aria-label="Fixed rate: flat, then a step up at renewal"><path class="svg-line" d="M10 100 H290"/><path class="svg-acc" d="M10 80 H190"/><path class="svg-risk" d="M190 80 V30 H290"/><text class="svg-small" x="194" y="22">renewal</text></svg>
+      <p>Feels nothing until renewal, then feels it all at once.</p></div>
+    <div class="card" data-s="2"><span class="label">Variable rate</span><h3>Moves with prime, month by month</h3>
+      <svg viewBox="0 0 300 110" role="img" aria-label="Variable rate: rises gradually"><path class="svg-line" d="M10 100 H290"/><path class="svg-acc" d="M10 85 C 60 85, 90 80, 120 60 S 190 25, 290 30"/></svg>
+      <p>Feels rate rises gradually, as they happen.</p></div>
+  </div>
+  <div class="analogy" data-s="3"><span class="label">So</span><p>The renewal analysis covers <b>fixed</b> mortgages only. Variable borrowers have already felt the increases.</p></div>
+  <ol class="say">
+    <li>There are two kinds of mortgage rate.</li>
+    <li>A fixed rate is locked for the whole term. When rates rise, the borrower feels nothing until renewal, and then feels it all at once.</li>
+    <li>A variable rate moves with the bank's prime rate, every month. When rates rise, the pain arrives gradually.</li>
+    <li>That's why the renewal analysis in this project looks only at fixed mortgages. Variable borrowers have already felt the increases as they happened.</li>
+  </ol>
+</section>
+
+<!-- ===================== INTEREST RATES ===================== -->
+<section class="slide" data-chapter="Interest rates">
+  <p class="eyebrow">Interest rates</p>
+  <h2>Where rates come from</h2>
+  <div class="grid g2">
+    <div class="grid" style="gap:10px">
+      <div class="card" data-s="1"><span class="label">Bank of Canada</span><h3>Policy rate</h3><p>The base price of money. Raised to fight inflation, cut to support the economy.</p></div>
+      <div class="card" data-s="2"><span class="label">Banks</span><h3>Prime rate = policy + 2.2 pp</h3><p>The base for variable loans.</p></div>
+      <div class="card" data-s="3"><span class="label">Priced off prime</span><p>Variable mortgages, home equity lines of credit (HELOCs).</p></div>
+    </div>
+    <div class="grid" style="gap:10px">
+      <div class="card" data-s="4"><span class="label">Bond market</span><h3>5-year Government of Canada bond yield</h3><p>What investors earn lending to the government for 5 years.</p></div>
+      <div class="card" data-s="4"><span class="label">Priced off the bond yield</span><p>Fixed mortgages, auto loans.</p></div>
+      <div class="card" data-s="5"><span class="label">Spread</span><p>What a bank adds on top: costs, risk, profit.</p></div>
+    </div>
+  </div>
+  <ol class="say">
+    <li>Where do interest rates come from?</li>
+    <li>It starts with the Bank of Canada, the country's central bank. It sets the policy rate, which is the base price of money in Canada. It raises it to fight inflation and cuts it to support the economy.</li>
+    <li>Banks set their prime rate from it. In this data, prime is always the policy rate plus two point two percentage points.</li>
+    <li>Variable mortgages and home equity lines of credit are priced off prime.</li>
+    <li>Fixed mortgages follow something else: the five-year Government of Canada bond yield. That's the interest investors earn when they lend money to the government for five years.</li>
+    <li>On top of their base rate, banks add a spread, to cover their costs, their risk, and their profit.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Interest rates">
+  <p class="eyebrow">Interest rates</p>
+  <h2>The posted-rate trap</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Month</th><th class="num">Posted 5-yr rate</th><th class="num">5-yr bond yield</th><th class="num">Yield + 1.40 (what people paid)</th></tr></thead>
+      <tbody>
+        <tr data-s="2"><td>Jan 2021</td><td class="num risk">4.79%</td><td class="num">0.43%</td><td class="num acc"><b>1.83%</b></td></tr>
+        <tr data-s="3"><td>Oct 2023</td><td class="num">7.04%</td><td class="num">4.23%</td><td class="num acc"><b>5.63%</b></td></tr>
+        <tr data-s="3"><td>Sep 2026</td><td class="num">6.09%</td><td class="num">3.57%</td><td class="num acc"><b>4.97%</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="analogy" data-s="1"><span class="label">Posted rate</span><p>A sticker price banks discount heavily from. Almost nobody pays it.</p></div>
+  <ol class="say">
+    <li>Now, a trap that a previous version of this project fell into.</li>
+    <li>The Bank of Canada publishes a five-year mortgage rate. But it's the posted rate. A sticker price that almost nobody pays.</li>
+    <li>In January 2021, the posted rate was four point seven nine percent. But the five-year bond yield was zero point four three percent, and people were actually paying around one point eight percent.</li>
+    <li>So this project prices fixed mortgages as the five-year bond yield plus one point four percentage points. That matches what borrowers really paid, in 2021 and today.</li>
+    <li>Using the posted rate would have made every payment, and every shock, wrong.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Interest rates">
+  <p class="eyebrow">Interest rates · <span class="badge real">Real data</span></p>
+  <h2>Twelve years of real rates</h2>
+  <figure data-s="0">
+    <img src="../images/01_real_rates.png" alt="Line chart of Canadian prime rate, estimated 5-year fixed mortgage rate and policy rate, 2015 to 2026">
+  </figure>
+  <div class="chips">
+    <span class="chip" data-s="1">2015–19: normal</span>
+    <span class="chip" data-s="2">Mar 2020 – Feb 2022: policy 0.25%, fixed ~1.8–2%</span>
+    <span class="chip" data-s="3">2022–23: policy to 5%, prime to 7.2%</span>
+    <span class="chip" data-s="4">Sep 2026: 5-yr fixed ~5%</span>
+    <span class="chip" data-s="6">Each loan priced at the monthly average</span>
+  </div>
+  <ol class="say">
+    <li>Here is the real rate history, straight from the Bank of Canada.</li>
+    <li>From 2015 to 2019, rates were fairly normal.</li>
+    <li>Then COVID. From March 2020 to February 2022, the shaded band, the policy rate was cut to a quarter of a percent, and fixed mortgages cost around one point eight to two percent. Millions of people locked in.</li>
+    <li>Then inflation arrived, and rates rose faster than they had in decades. The policy rate reached five percent, and prime reached seven point two percent.</li>
+    <li>Since then rates have come down, but not back to two percent. In September 2026 a five-year fixed costs about five percent.</li>
+    <li>The whole project is in this chart. People who locked in inside the grey band are renewing at today's level.</li>
+    <li>One more detail. Rates are published daily or weekly, but each loan is priced with the monthly average. A loan signed in March could be signed on any day in March, so the typical rate that month is the fairest single number.</li>
+  </ol>
+</section>
+
+<!-- ===================== PRODUCTS & BORROWERS ===================== -->
+<section class="slide" data-chapter="Products and borrowers">
+  <p class="eyebrow">Products and borrowers · <span class="badge sim">Simulated book</span></p>
+  <h2>Four kinds of loan</h2>
+  <div class="grid g4">
+    <div class="card" data-s="1"><span class="label">Secured · home</span><h3>Mortgage</h3><span class="big">$523k</span><p>Average size. Average rate 3.2%.</p></div>
+    <div class="card" data-s="2"><span class="label">Secured · home</span><h3>HELOC</h3><span class="big">$135k</span><p>Borrow against the part of your home you own. Floats with prime.</p></div>
+    <div class="card" data-s="3"><span class="label">Secured · car</span><h3>Auto loan</h3><span class="big">$42k</span><p>Paid off over 6 years.</p></div>
+    <div class="card" data-s="4"><span class="label risk">Unsecured</span><h3>Credit card</h3><span class="big">$10k</span><p>Backed by nothing. Average rate 18.9%.</p></div>
+  </div>
+  <div class="analogy" data-s="5"><span class="label">Secured vs unsecured</span><p>A pawn shop keeps your item if you don't pay. An IOU from a friend leaves them with nothing. That's why the IOU costs more.</p></div>
+  <ol class="say">
+    <li>The simulated bank has four products.</li>
+    <li>Mortgages, to buy a home. The average one in our book is about five hundred and twenty-three thousand dollars.</li>
+    <li>Home equity lines of credit, which we'll call he-locks. You borrow against the part of your home you already own. Their rate floats with prime.</li>
+    <li>Auto loans, paid off over six years and backed by the car.</li>
+    <li>And credit cards, which are backed by nothing at all.</li>
+    <li>That's the key difference. Secured loans are backed by something the bank can sell, a house or a car. Unsecured loans are backed only by a promise. Like a pawn shop versus an I O U from a friend.</li>
+    <li>Because unsecured lending loses more when things go wrong, it costs more. Our cards average about nineteen percent a year. Our mortgages, about three.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Products and borrowers">
+  <p class="eyebrow">Products and borrowers · <span class="badge sim">Simulated book</span></p>
+  <h2>Credit scores: 300 to 900</h2>
+  <div class="bars">
+    <div class="bar-row" data-s="2"><span>Below 600</span><div class="bar-track"><div class="bar-fill" style="--w:13.9%;background:var(--risk)"></div></div><span class="num">2,115</span></div>
+    <div class="bar-row" data-s="1"><span>600–659</span><div class="bar-track"><div class="bar-fill" style="--w:50.3%"></div></div><span class="num">7,661</span></div>
+    <div class="bar-row" data-s="1"><span>660–719</span><div class="bar-track"><div class="bar-fill" style="--w:100%"></div></div><span class="num">15,222</span></div>
+    <div class="bar-row" data-s="1"><span>720–779</span><div class="bar-track"><div class="bar-fill" style="--w:99%"></div></div><span class="num">15,068</span></div>
+    <div class="bar-row" data-s="1"><span>780+</span><div class="bar-track"><div class="bar-fill" style="--w:65.3%"></div></div><span class="num">9,934</span></div>
+  </div>
+  <div class="analogy" data-s="3"><span class="label">Simulation rule</span><p>Every <b>100 points lower doubles</b> the chance of missing a payment.</p></div>
+  <ol class="say">
+    <li>Lenders judge borrowers with a credit score. In Canada it runs from three hundred to nine hundred. Higher means a better track record of paying debts.</li>
+    <li>The project groups scores into five bands. Most of our fifty thousand borrowers sit in the middle, between six hundred and sixty and seven hundred and seventy-nine.</li>
+    <li>Only about two thousand are below six hundred. Lenders call them subprime.</li>
+    <li>In the simulation, every one hundred points lower doubles the chance of missing a payment. Remember that rule. The model at the end will try to rediscover it.</li>
+  </ol>
+</section>
+
+<!-- ===================== WHEN BORROWERS STRUGGLE ===================== -->
+<section class="slide" data-chapter="When borrowers struggle">
+  <p class="eyebrow">When borrowers struggle</p>
+  <h2>The journey of a late loan</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 900 250" role="img" aria-label="State diagram: current, 30, 60, 90, 120 days past due, default, with cure arrows back to current">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--muted)"/></marker>
+        <marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+      </defs>
+      <g data-s="7"><path class="svg-line" d="M155 52 V40 H735 V52"/><text class="svg-small" x="380" y="32">Delinquent: 30 to 120 days late</text></g>
+      <g data-s="5"><rect class="svg-tint" x="455" y="56" width="280" height="64" rx="10"/><text class="svg-small" x="545" y="140">Impaired: 90+ days</text></g>
+      <g data-s="1"><rect class="svg-box acc" x="10" y="62" width="120" height="52" rx="8"/><text class="svg-text" x="70" y="93" text-anchor="middle">Current</text></g>
+      <g data-s="2"><path class="svg-line" d="M132 88 H158" marker-end="url(#ah)"/><rect class="svg-box" x="160" y="62" width="120" height="52" rx="8"/><text class="svg-text" x="220" y="86" text-anchor="middle">30 days</text><text class="svg-small" x="220" y="104" text-anchor="middle">past due</text></g>
+      <g data-s="4"><path class="svg-line" d="M282 88 H308" marker-end="url(#ah)"/><rect class="svg-box" x="310" y="62" width="120" height="52" rx="8"/><text class="svg-text" x="370" y="93" text-anchor="middle">60 days</text>
+        <path class="svg-line" d="M432 88 H458" marker-end="url(#ah)"/><rect class="svg-box" x="460" y="62" width="120" height="52" rx="8"/><text class="svg-text" x="520" y="93" text-anchor="middle">90 days</text>
+        <path class="svg-line" d="M582 88 H608" marker-end="url(#ah)"/><rect class="svg-box" x="610" y="62" width="120" height="52" rx="8"/><text class="svg-text" x="670" y="93" text-anchor="middle">120 days</text></g>
+      <g data-s="6"><path class="svg-line" d="M732 88 H758" marker-end="url(#ah)"/><rect class="svg-box bad" x="760" y="62" width="130" height="52" rx="8"/><text class="svg-text" x="825" y="93" text-anchor="middle" style="fill:var(--risk)">Default</text></g>
+      <g data-s="3"><path class="svg-cure" d="M220 116 C 220 200, 70 200, 70 118" marker-end="url(#ahc)"/>
+        <path class="svg-cure" d="M370 116 C 370 222, 70 222, 70 118"/><path class="svg-cure" d="M520 116 C 520 236, 70 236, 70 118"/><path class="svg-cure" d="M670 116 C 670 246, 70 246, 70 118"/>
+        <text class="svg-small" x="250" y="190" style="fill:var(--accent)">cure: catches up</text></g>
+    </svg>
+  </div>
+  <div class="grid g3">
+    <div class="card" data-s="2"><span class="label">Hazard</span><p>Monthly chance a current loan misses a payment. About 2 in 1,000 for mortgages.</p></div>
+    <div class="card" data-s="3"><span class="label">Cure</span><p>A late borrower catches up.</p></div>
+    <div class="card" data-s="4"><span class="label">Roll</span><p>A late borrower misses again and moves one box right.</p></div>
+  </div>
+  <ol class="say">
+    <li>What happens when someone can't pay?</li>
+    <li>Each month, every loan is in exactly one state. Most of the time, it's current. Paid on time.</li>
+    <li>If the borrower misses a payment, the loan becomes thirty days past due. The monthly chance of that happening is called the hazard. It's small. About two in a thousand for mortgages.</li>
+    <li>From there, two things can happen each month. The borrower can catch up. That's called a cure.</li>
+    <li>Or they can miss again, and roll forward. Sixty days. Ninety days. A hundred and twenty days.</li>
+    <li>Ninety days or more is called impaired. The bank now seriously doubts it will be repaid.</li>
+    <li>After a hundred and twenty days, the loan goes into default. The bank stops expecting normal repayment, and the loan leaves the book.</li>
+    <li>Delinquent simply means behind on payments. Anything from thirty to a hundred and twenty days.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="When borrowers struggle">
+  <p class="eyebrow">When borrowers struggle · <span class="badge sim">From the simulation</span></p>
+  <h2>Two real loans from the simulation</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Loan 59 · mortgage</span><h3 class="acc">A cure</h3>
+      <div class="chips"><span class="chip">Jun 2025 current</span><span class="chip risk">Jul 2025 · 30 days</span><span class="chip acc">Aug 2025 current</span></div></div>
+    <div class="card" data-s="2"><span class="label">Loan 3 · credit card</span><h3 class="risk">Rolled to default</h3>
+      <div class="chips"><span class="chip">Aug 2024 · 30</span><span class="chip">Sep · 60</span><span class="chip">Oct · 90</span><span class="chip">Nov · 120</span><span class="chip risk">Dec 2024 · default</span></div></div>
+  </div>
+  <div class="card" data-s="3"><span class="label">Across 1,688,653 loan-months</span><span class="big"><span class="count" data-to="99" data-dec="0" data-suf="%">99%</span> current</span><p>1,672,637 were paid on time. Risk lives in the other 1%.</p></div>
+  <ol class="say">
+    <li>Here are two loans from the simulation.</li>
+    <li>Loan fifty-nine is a mortgage. It was current for years. In July 2025 it slipped to thirty days past due. In August it caught up. That's a cure.</li>
+    <li>Loan three is a credit card. In August 2024 it missed a payment. Then September, October, November. Each month it rolled further behind. In December 2024 it defaulted.</li>
+    <li>And across all one point six nine million loan-months, ninety-nine percent were current. Risk lives in the other one percent. Finding it is the job.</li>
+  </ol>
+</section>
+
+<!-- ===================== PREPARING FOR LOSSES ===================== -->
+<section class="slide" data-chapter="Preparing for losses">
+  <p class="eyebrow">Preparing for losses</p>
+  <h2>The bank's rainy-day fund</h2>
+  <div class="analogy" data-s="1"><span class="label">Provision</span><p>You don't know which day your car breaks down, but you know roughly what repairs cost each year, so you save that much. A provision is the bank's rainy-day fund for bad loans.</p></div>
+  <p class="formula" data-s="2"><span class="term">Expected loss</span> = <span class="term" data-s="3">Balance</span> × <span class="term" data-s="4">PD</span> × <span class="term" data-s="5">LGD</span></p>
+  <div class="grid g3">
+    <div class="card" data-s="3"><span class="label">Balance (exposure)</span><p>How much is owed.</p></div>
+    <div class="card" data-s="4"><span class="label">PD: probability of default</span><p>Chance they stop paying in the next 12 months.</p></div>
+    <div class="card" data-s="5"><span class="label">LGD: loss given default</span><p>Share really lost: <b class="mono">10%</b> mortgage (house is sold) · <b class="mono risk">85%</b> card (nothing to sell).</p></div>
+  </div>
+  <ol class="say">
+    <li>A bank knows some loans will go bad. It can't know which ones, but it can estimate how much. And it's required to set that money aside in advance.</li>
+    <li>That money is called a provision. Think of it as a rainy-day fund. You don't know which day your car will break down, but you know roughly what repairs cost each year, so you save that much.</li>
+    <li>The size of the fund comes from one formula. Expected loss equals the balance, times the probability of default, times the loss given default.</li>
+    <li>The balance is how much is owed. Bankers also call it exposure.</li>
+    <li>The probability of default is the chance the borrower stops paying. We use the chance over the next twelve months.</li>
+    <li>The loss given default is the share of the balance that is really lost if they do default. For a mortgage, the bank can sell the house, so we assume only ten percent is lost. For a credit card there is nothing to sell, so it's eighty-five percent.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Preparing for losses">
+  <p class="eyebrow">Preparing for losses · <span class="badge sim">Real row from the analysis</span></p>
+  <h2>One borrower, start to finish: loan 30258</h2>
+  <div class="grid g4" data-s="1">
+    <div class="card"><span class="label">Province</span><span class="big">Alberta</span></div>
+    <div class="card"><span class="label">Credit score</span><span class="big risk">586</span></div>
+    <div class="card"><span class="label">Owes at renewal</span><span class="big">$719,998</span></div>
+    <div class="card" data-s="2"><span class="label">Renews Oct 2026</span><span class="big">2.83 → <span class="risk">5.14%</span></span></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Step</th><th>Calculation</th><th class="num">Result</th></tr></thead>
+      <tbody>
+        <tr data-s="2"><td>Monthly payment</td><td>$3,932 → $4,807</td><td class="num risk">+22.3%</td></tr>
+        <tr data-s="3"><td>Normal 12-month PD, "Below 600" mortgages</td><td>measured from the data</td><td class="num">0.55%</td></tr>
+        <tr data-s="3"><td>× Alberta's real arrears factor</td><td>Alberta: 1.38× Canada's arrears (CBA)</td><td class="num">0.76%</td></tr>
+        <tr data-s="4"><td>Stressed PD after the jump</td><td>0.76% × (1 + 0.25 × 2.31)</td><td class="num">1.19%</td></tr>
+        <tr data-s="5"><td>Expected loss before</td><td>$719,998 × 0.76% × 10%</td><td class="num">$545</td></tr>
+        <tr data-s="5"><td>Expected loss after</td><td>$719,998 × 1.19% × 10%</td><td class="num">$860</td></tr>
+        <tr data-s="6"><td><b>Incremental provision</b></td><td>$860 − $545</td><td class="num risk"><b>$315</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p data-s="6" class="lead">Sum this over every renewal → the provision. Sort by it → the call list. This borrower is <b>#1</b>.</p>
+  <ol class="say">
+    <li>Let's apply that to one real row from the analysis. Loan thirty thousand two hundred and fifty-eight.</li>
+    <li>The borrower lives in Alberta, has a credit score of five hundred and eighty-six, and owes about seven hundred and twenty thousand dollars.</li>
+    <li>Their mortgage renews in October 2026. The rate goes from two point eight three percent to five point one four. Their payment rises from three thousand nine hundred and thirty-two dollars a month to four thousand eight hundred and seven. Twenty-two percent more.</li>
+    <li>For borrowers below six hundred, the data shows a twelve-month default probability of zero point five five percent. And real data shows Alberta's mortgages fall behind one point three eight times as often as Canada's, which lifts it to about zero point seven six percent.</li>
+    <li>The project assumes each percentage point of rate rise makes missing a payment twenty-five percent more likely. With a jump of two point three one points, the probability rises to about one point one nine percent.</li>
+    <li>Expected loss before the renewal: five hundred and forty-five dollars. After: eight hundred and sixty.</li>
+    <li>The difference, three hundred and fifteen dollars, is the extra money to set aside because of this one renewal. Add that up over every renewing mortgage and you get the provision. Sort borrowers by it, and you get the call list. This borrower is number one.</li>
+  </ol>
+</section>
+
+<!-- ===================== PROBLEM & DATA ===================== -->
+<section class="slide" data-chapter="The problem and the data">
+  <p class="eyebrow">The problem and the data</p>
+  <h2>The problem statement</h2>
+  <div class="analogy" data-s="1"><p>Between 2025 and 2027, many Canadian mortgages written in the low-rate era reach the end of their 5-year term and reprice at today's higher rates.</p></div>
+  <div class="analogy" data-s="2"><p><b>For our loan book:</b> which mortgages renew and when · how big is the shock · which segments carry the most risk · how much extra provision · who to call first.</p></div>
+  <div class="grid g3" data-s="3">
+    <div class="card"><span class="label">Real</span><p>The biggest Canadian retail banking topic of 2025–27.</p></div>
+    <div class="card"><span class="label">In dollars</span><p>A provision figure and a ranked call list.</p></div>
+    <div class="card"><span class="label">Aimed at hiring</span><p>Financial services: Toronto's biggest employer of entry-level analysts.</p></div>
+  </div>
+  <ol class="say">
+    <li>Now we can state the problem properly.</li>
+    <li>Between 2025 and 2027, many Canadian mortgages written during the low-rate era reach the end of their five-year term and reprice at today's higher rates.</li>
+    <li>For our loan book: which mortgages renew and when, how big is the shock, which segments carry the most risk, how much extra provision does it imply, and who should we call first?</li>
+    <li>It's a good problem for an analyst for three reasons. It's real: it's the biggest Canadian retail banking topic of these years. The answer is in dollars. And it's aimed at financial services, the biggest employer of entry-level analysts in Toronto.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The problem and the data">
+  <p class="eyebrow">The problem and the data</p>
+  <h2>What's real, what's simulated</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="badge real">Real · 3 sources</span><h3>Rates, unemployment, arrears</h3><p>Bank of Canada: 4 interest rates. Statistics Canada: unemployment by province. Canadian Bankers Association: mortgages 90+ days late, by region.</p></div>
+    <div class="card" data-s="2"><span class="badge sim">Simulated</span><h3>50,000 loans · 1.69M loan-months</h3><p>No bank publishes customer data. Banks build simulated books themselves to test models.</p></div>
+  </div>
+  <div class="analogy" data-s="3"><span class="label">The link</span><p>Loans are priced off <b>real rates</b>, placed where Canada's mortgages <b>really are</b>, and riskier in <b>high-arrears regions</b> and <b>high-unemployment months</b>. Then the result is <b>checked against real arrears</b>.</p></div>
+  <div class="grid g2">
+    <div class="card" data-s="4"><span class="label">Honesty</span><p>Every simulated row says <span class="mono">SIMULATED - not real customers</span>. Every chart says so too.</p></div>
+    <div class="card" data-s="5"><span class="label">Seed</span><p>The starting point for "random" numbers. Same seed → the same 50,000 loans, every run.</p></div>
+  </div>
+  <ol class="say">
+    <li>An important question for any analysis: where does the data come from?</li>
+    <li>Three sources are real. Interest rates from the Bank of Canada. Unemployment by province from Statistics Canada. And the share of mortgages ninety or more days late, by region, from the Canadian Bankers Association.</li>
+    <li>The loans are simulated. Fifty thousand loans, and one point six nine million months of payment history. No Canadian bank publishes customer-level data. It's private. Banks build simulated portfolios themselves, for the same reason.</li>
+    <li>What makes the simulation meaningful is the link between the two. Loans are priced off real rates, placed in provinces the way Canada's real mortgages are, and made riskier in regions with high real arrears and in months with high real unemployment. Then the result is checked against real arrears.</li>
+    <li>We stay honest about it. Every simulated row says, simulated, not real customers. Every chart says so too.</li>
+    <li>And the simulation uses a seed. A seed is the starting point for the computer's random numbers. Same seed, same fifty thousand loans, every time. So anyone who runs the project gets exactly these numbers.</li>
+  </ol>
+</section>
+
+<!-- ===================== THE APPROACH ===================== -->
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach</p>
+  <h2>The pipeline, start to finish</h2>
+  <div class="steps">
+    <div class="step" data-s="1"><div><b>Fetch real data</b><span>rates · unemployment · mortgage arrears</span></div></div>
+    <div class="step" data-s="2"><div><b>Simulate 50,000 loans</b><span>notebook 01</span></div></div>
+    <div class="step" data-s="3"><div><b>Simulate monthly performance</b><span>notebook 02 → 1.69M rows</span></div></div>
+    <div class="step" data-s="4"><div><b>Build the warehouse</b><span>DuckDB + SQL star schema (notebook 03)</span></div></div>
+    <div class="step gate" data-s="5"><div><b>Data quality gate: 23 checks</b><span>any error → the build stops</span></div></div>
+    <div class="step" data-s="6"><div><b>12 business questions + 3 checks against real data, export for Power BI</b><span>sql/04, sql/05</span></div></div>
+    <div class="step" data-s="7"><div><b>Charts and a prediction model</b><span>notebooks 04 and 05</span></div></div>
+  </div>
+  <ol class="say">
+    <li>Here's how the project is built, from start to finish.</li>
+    <li>First, two small Python scripts fetch the real data: interest rates, unemployment, and mortgage arrears.</li>
+    <li>A notebook simulates fifty thousand loans, priced off those rates.</li>
+    <li>A second notebook simulates how each loan performs, month by month.</li>
+    <li>Everything is loaded into a database, where sequel builds clean analysis tables.</li>
+    <li>Then the data quality gate. Twenty-three checks. If any important check fails, the build stops, and nothing bad reaches the dashboard.</li>
+    <li>Next, twelve sequel queries answer the business questions, three more check the simulation against real data, and the results are exported for Power B I.</li>
+    <li>Two more notebooks draw the charts and build a simple prediction model.</li>
+    <li>Each step depends only on the steps before it. So if something breaks, you fix it and re-run from that point.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · notebook 01</p>
+  <h2>Building the loan book</h2>
+  <div class="chips" data-s="1">
+    <span class="chip">Product</span><span class="arrow">→</span><span class="chip">Province <span class="badge real">real mix</span></span><span class="arrow">→</span><span class="chip">Credit score</span><span class="arrow">→</span><span class="chip">Fixed / variable</span><span class="arrow">→</span><span class="chip">Loan size</span><span class="arrow">→</span><span class="chip">Signing month 2015–26</span>
+  </div>
+  <div class="grid g2">
+    <div class="card" data-s="2"><span class="label">Fixed mortgage</span><p class="mono">5-yr bond yield + 1.40 · min 1.35%</p></div>
+    <div class="card" data-s="3"><span class="label">Variable mortgage</span><p class="mono">prime − 1.00 · min 0.95%</p></div>
+    <div class="card" data-s="4"><span class="label">Credit discount per 100 points</span><p class="mono">mortgage 0.15 pp · card 5.5 pp</p></div>
+    <div class="card" data-s="5"><span class="label">Fixed mortgages renewing 2025–27</span><p>Old rate, new rate, both payments, payment shock.</p></div>
+  </div>
+  <div class="analogy" data-s="6"><span class="label">No forecasting</span><p>Renewals after Sep 2026 use the last real rate, held flat, and are labelled as such.</p></div>
+  <ol class="say">
+    <li>Let's look inside the loan simulation.</li>
+    <li>For each of the fifty thousand loans, the notebook draws a product, a province, a credit score, fixed or variable, a loan size, and a signing month between 2015 and 2026. Provinces follow where Canada's mortgages really are, using the bankers' association's counts. That puts about forty-four percent in Ontario.</li>
+    <li>Then it prices the loan with the real rate from its signing month. A fixed mortgage costs the five-year bond yield plus one point four points, never below one point three five percent.</li>
+    <li>A variable mortgage costs prime minus one point, never below zero point nine five percent.</li>
+    <li>Better credit means a cheaper rate, but by very different amounts. Mortgages barely move, because banks compete on headline rates. Credit cards move a lot.</li>
+    <li>Finally, for every fixed mortgage renewing between 2025 and 2027, it works out the old rate, the new rate, both payments, and the payment shock.</li>
+    <li>Renewals after September 2026 have no real rate yet. The project holds the last real rate flat. It never forecasts.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · notebook 02</p>
+  <h2>Simulating 42 months, Apr 2023 – Sep 2026</h2>
+  <p class="formula" data-s="1"><span class="term">hazard</span> = <span class="term" data-s="2">base</span> × <span class="term" data-s="3">credit</span> × <span class="term" data-s="4">rates</span> × <span class="term" data-s="5">where</span> × <span class="term" data-s="6">when</span></p>
+  <div class="grid g5">
+    <div class="card" data-s="2"><span class="label">Base, by product</span><p>Lands near published norms: mortgage ~0.5%, HELOC ~0.8%, auto ~3%, card ~5% over 42 months.</p></div>
+    <div class="card" data-s="3"><span class="label">Credit</span><p>100 points lower → 2× the chance.</p></div>
+    <div class="card" data-s="4"><span class="label">Real rates</span><p>Each +1 pp since signing → +25%.</p></div>
+    <div class="card" data-s="5"><span class="label">Where · real arrears</span><p>Saskatchewan 2.58× · Quebec 0.78×</p></div>
+    <div class="card" data-s="6"><span class="label">When · real unemployment</span><p>0.80× in Apr 2023 → 1.08× by 2025</p></div>
+  </div>
+  <div class="analogy" data-s="7"><span class="label">Analogy · a slippery road</span><p>Most days everyone drives safely. Weaker drivers skid more. Ice (higher rates) makes everyone skid more. After a skid you recover (cure) or slide further (roll).</p></div>
+  <ol class="say">
+    <li>The second notebook plays out forty-two months, from April 2023 to September 2026.</li>
+    <li>Each month, every current loan has a small chance of missing a payment. That chance, the hazard, is built from three parts.</li>
+    <li>A base rate for the product. These are set so each product lands near published Canadian default rates over this period: about half a percent for mortgages, three percent for auto loans, five percent for cards.</li>
+    <li>A credit score effect. Every hundred points lower doubles the chance.</li>
+    <li>A real rate effect. Every percentage point the loan's rate has risen since signing adds twenty-five percent.</li>
+    <li>A where factor, from real arrears data. Saskatchewan's mortgages fall behind two point five eight times as often as Canada's, so its borrowers carry that much more risk. Quebec's carry less.</li>
+    <li>And a when factor, from real unemployment. As unemployment rose from 2023 to 2025, risk rose everywhere. Why two factors? Real data showed unemployment explains when arrears rise, but not where they're highest.</li>
+    <li>Think of it as driving on a slippery road. Most days everyone drives safely. A weaker driver skids more often. Ice on the road, which here means higher rates, makes everyone skid more. And once you skid, you either recover or slide further.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · notebook 03 + sql/</p>
+  <h2>Organising the data: a star schema</h2>
+  <div class="chips" data-s="1"><span class="chip"><b>raw</b> · files loaded unchanged</span><span class="arrow">→</span><span class="chip"><b>mart</b> · analysis tables</span><span class="arrow">→</span><span class="chip"><b>quality</b> · check results</span></div>
+  <div class="diagram">
+    <svg viewBox="0 0 900 270" role="img" aria-label="Star schema: fact tables in the middle connected to dimension tables around them">
+      <g data-s="2">
+        <path class="svg-line" d="M180 50 L370 120"/><path class="svg-line" d="M180 220 L370 150"/><path class="svg-line" d="M720 50 L530 120"/><path class="svg-line" d="M720 220 L530 150"/><path class="svg-line" d="M450 30 V100"/>
+        <rect class="svg-box" x="40" y="25" width="150" height="46" rx="8"/><text class="svg-text" x="115" y="54" text-anchor="middle">dim_month</text>
+        <rect class="svg-box" x="40" y="200" width="150" height="46" rx="8"/><text class="svg-text" x="115" y="229" text-anchor="middle">dim_province</text>
+        <rect class="svg-box" x="710" y="25" width="150" height="46" rx="8"/><text class="svg-text" x="785" y="54" text-anchor="middle">dim_product</text>
+        <rect class="svg-box" x="710" y="200" width="160" height="46" rx="8"/><text class="svg-text" x="790" y="229" text-anchor="middle">dim_credit_band</text>
+        <rect class="svg-box" x="380" y="0" width="140" height="40" rx="8"/><text class="svg-text" x="450" y="26" text-anchor="middle">dim_loan</text>
+        <text class="svg-small" x="40" y="15">DIMENSIONS describe things</text>
+      </g>
+      <g data-s="3">
+        <rect class="svg-box acc" x="350" y="100" width="200" height="40" rx="8"/><text class="svg-text" x="450" y="126" text-anchor="middle">fact_loan_month</text>
+        <rect class="svg-box acc" x="350" y="150" width="200" height="40" rx="8"/><text class="svg-text" x="450" y="176" text-anchor="middle">fact_renewal</text>
+        <text class="svg-small" x="370" y="212">FACTS hold the numbers</text>
+      </g>
+    </svg>
+  </div>
+  <div class="grid g2">
+    <div class="analogy" data-s="4"><span class="label">Analogy · a shop receipt</span><p>Receipt lines are facts (item, quantity, price). The catalogue, store list and calendar are dimensions.</p></div>
+    <div class="card" data-s="5"><span class="label">Grain = what one row means</span><p>fact_loan_month: one loan in one month. fact_renewal: one renewing mortgage. Knowing it stops double counting.</p></div>
+  </div>
+  <ol class="say">
+    <li>All of this goes into a database called Duck D B. It lives in a single file, so there's no server to install.</li>
+    <li>The data is loaded in layers. First a raw copy of each source file, unchanged, so we can always rebuild from it.</li>
+    <li>Then analysis tables arranged as a star schema. Dimension tables describe things: months, provinces, products, credit bands, loans.</li>
+    <li>Fact tables hold the numbers: balances, payments, losses.</li>
+    <li>Think of a shop receipt. Each line on the receipt is a fact: an item, a quantity, a price. The product catalogue, the list of stores and the calendar are dimensions. Because every receipt line points to them, you can slice sales by any of them.</li>
+    <li>Every table has a grain: what one row means. One loan in one month. Or one renewing mortgage. Knowing the grain is what stops you from double counting.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · a design rule</p>
+  <h2>Store amounts, not ratios</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Province</th><th class="num">Late $</th><th class="num">Total $</th><th class="num">Rate</th></tr></thead>
+      <tbody>
+        <tr data-s="1"><td>A</td><td class="num">$1</td><td class="num">$10</td><td class="num">10%</td></tr>
+        <tr data-s="1"><td>B</td><td class="num">$1</td><td class="num">$1,000</td><td class="num">0.1%</td></tr>
+        <tr data-s="2"><td class="risk">Average of the two rates</td><td class="num"></td><td class="num"></td><td class="num risk"><b>5.05% ✗</b></td></tr>
+        <tr data-s="3"><td class="acc">Sum ÷ sum</td><td class="num">$2</td><td class="num">$1,010</td><td class="num acc"><b>0.2% ✓</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint" data-s="4">Illustrative numbers. Tables store <span class="mono">delinquent_balance</span> in dollars; every rate is SUM ÷ SUM.</p>
+  <ol class="say">
+    <li>One design rule matters a lot in banking dashboards: store amounts, never ratios.</li>
+    <li>Imagine two provinces. Province A has one dollar late out of ten. That's ten percent. Province B has one dollar late out of a thousand. That's zero point one percent.</li>
+    <li>If you average the two rates, you get about five percent. That's wrong. It treats a ten-dollar book the same as a thousand-dollar book.</li>
+    <li>The right way is to add up the late dollars and the total dollars first, then divide. Two dollars out of one thousand and ten. About zero point two percent.</li>
+    <li>So the tables store the late balance in dollars, and every rate is calculated as a sum divided by a sum. These are illustrative numbers, but the trap is real and very common.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · sql/03</p>
+  <h2>The data quality gate</h2>
+  <div class="grid g5">
+    <div class="card" data-s="1"><span class="label">Completeness</span><p>Is anything missing? Every loan has a product, province, score.</p></div>
+    <div class="card" data-s="2"><span class="label">Uniqueness</span><p>Duplicates? One row per loan per month.</p></div>
+    <div class="card" data-s="3"><span class="label">Validity</span><p>Possible values? Scores 300–900.</p></div>
+    <div class="card" data-s="4"><span class="label">Consistency</span><p>Tables agree? No loan after it defaulted.</p></div>
+    <div class="card" data-s="5"><span class="label">Reconciliation</span><p>Totals match the source, within 0.01%. The cashier's end-of-day count.</p></div>
+  </div>
+  <div class="card" data-s="6"><span class="label">Result</span><span class="big acc"><span class="count" data-to="23" data-dec="0">23</span> / 23 pass</span><p>Any error-level failure stops the build before the dashboard.</p></div>
+  <ol class="say">
+    <li>Before any result reaches the dashboard, it passes twenty-three data quality checks, on both the simulated and the real data. Each one counts the rows that break a rule.</li>
+    <li>Completeness: is anything missing? For example, every loan must have a product, a province and a credit score.</li>
+    <li>Uniqueness: is anything duplicated? Exactly one row per loan per month.</li>
+    <li>Validity: are values possible? Credit scores must be between three hundred and nine hundred.</li>
+    <li>Consistency: do tables agree? No loan may appear after the month it defaulted.</li>
+    <li>Reconciliation: do totals match the source? The total balance in the database must match the source file, within one hundredth of a percent. Like a cashier counting the till against the receipts before closing.</li>
+    <li>Result: twenty-three out of twenty-three pass. Banks ask for exactly this skill in their job postings.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · sql/04</p>
+  <h2>Fifteen questions, answered in SQL</h2>
+  <div class="chips" data-s="1">
+    <span class="chip">Q1 wave size</span><span class="chip">Q2 shock bands</span><span class="chip">Q3 term start year</span><span class="chip">Q4 provinces</span><span class="chip">Q5 credit bands (lift)</span><span class="chip">Q6 provision</span><span class="chip">Q7 portfolio health</span><span class="chip">Q8 default rates</span><span class="chip">Q9 HELOCs</span><span class="chip">Q10 call list</span><span class="chip">Q11 data quality</span><span class="chip">Q12 headline</span><span class="chip acc">Q13–15 vs real data</span>
+  </div>
+  <div class="grid g2">
+    <div class="card" data-s="2"><span class="label">Lift</span><p class="formula" style="font-size:18px">share of the group ÷ share of everyone</p></div>
+    <div class="card" data-s="3"><span class="label">Example: below 600</span><p class="mono">3.9% of high-shock ÷ 4.5% of all = 0.86</p><p>Below 1 = under-represented.</p></div>
+  </div>
+  <div class="analogy" data-s="4"><span class="label">Always compare to the base</span><p>"X% of high-shock loans are subprime" means nothing until you know how common subprime is overall.</p></div>
+  <ol class="say">
+    <li>The business questions are answered by fifteen sequel queries. Every number in the readme, and in this presentation, comes from one of them.</li>
+    <li>They cover the size of the renewal wave, the shape of the shock, what drives it, provinces, credit bands, the provision, portfolio health, default rates, he-locks, the call list, data quality, the headline numbers, and three checks against real data.</li>
+    <li>One technique worth knowing is lift. It compares a group's share of something to its share of everyone.</li>
+    <li>If borrowers below six hundred are four and a half percent of all renewals, but three point nine percent of the high-shock renewals, their lift is about zero point eight six. Slightly under-represented. A lift above one means over-represented.</li>
+    <li>Always compare to the base. Saying that some percent of high-shock loans are subprime means nothing until you know how common subprime is overall.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · notebook 05</p>
+  <h2>A simple prediction model</h2>
+  <div class="chips" data-s="1"><span class="chip">credit score</span><span class="chip">product</span><span class="chip">loan size</span><span class="chip">rate increase</span><span class="chip">months exposed</span><span class="chip">region's real arrears</span><span class="arrow">→</span><span class="chip"><b>logistic regression</b></span><span class="arrow">→</span><span class="chip acc"><b>probability of default</b></span></div>
+  <div class="grid g4">
+    <div class="card" data-s="2"><span class="label">Train / test</span><p>Learn from 70%, graded on the unseen 30%.</p></div>
+    <div class="card" data-s="3"><span class="label">AUC</span><span class="big"><span class="count" data-to="0.770" data-dec="3">0.770</span></span><p>0.5 coin flip · 1.0 perfect</p></div>
+    <div class="card" data-s="4"><span class="label">Riskiest 20% of loans</span><span class="big"><span class="count" data-to="55" data-dec="0" data-suf="%">55%</span></span><p>of all defaults</p></div>
+    <div class="card" data-s="5"><span class="label">Rules recovered</span><span class="big">0.44 · 1.13</span><p>credit odds ratio per 100 pts (built in 0.5) · regional factor (built in 1)</p></div>
+  </div>
+  <ol class="say">
+    <li>The last notebook builds a prediction model: a logistic regression. It's the standard first model in credit risk.</li>
+    <li>It takes a few facts about a loan, such as credit score, product, loan size, rate increase and the region's real arrears level, and outputs a probability of default between zero and one.</li>
+    <li>It learns from seventy percent of the loans, and is graded on the other thirty percent, which it has never seen. Like studying past exam papers, then sitting a new exam.</li>
+    <li>Its score, called A U C, is zero point seven seven. Zero point five would be a coin flip, and one would be perfect.</li>
+    <li>More usefully: if you sort loans from riskiest to safest, the riskiest twenty percent contain fifty-five percent of all defaults. That tells a collections team how far down a list to call.</li>
+    <li>Because we wrote the rules that create defaults, a good model should rediscover them. It did. It found that each hundred credit points multiplies the odds of default by about zero point four four, where we built in zero point five. And it found the regional factor with a coefficient of one point one three, where we built in one.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="The approach">
+  <p class="eyebrow">The approach · checking against reality · queries Q13–Q15</p>
+  <h2>Does the simulation behave like the real market?</h2>
+  <div class="grid g3">
+    <div class="card" data-s="1"><span class="label">Real vs real, over time</span><span class="big acc">0.69</span><p>Real arrears rose with real unemployment.</p></div>
+    <div class="card" data-s="1"><span class="label">Real vs real, across regions</span><span class="big risk">−0.29</span><p>Unemployment doesn't explain where arrears are high.</p></div>
+    <div class="card" data-s="2"><span class="label">Simulated vs real trend</span><span class="big">0.41</span><p>Rises with reality, loosely.</p></div>
+  </div>
+  <figure data-s="3"><img src="../images/11_real_vs_simulated_arrears.png" alt="Left: real vs simulated national mortgage arrears by quarter. Right: real vs simulated arrears by region"></figure>
+  <div class="analogy" data-s="4"><span class="label">Why the level is lower (0.41×)</span><p>Real mortgages can stay 90+ days behind for months during the legal process to sell the home. The model writes loans off after 120 days, so fewer sit in arrears at once.</p></div>
+  <ol class="say">
+    <li>A simulation is only useful if it behaves like reality. So we drive it with one real source and check it against a different one.</li>
+    <li>First, real against real. Real mortgage arrears rose with real unemployment over time, a correlation of zero point six nine. But across regions there's no link, minus zero point two nine. That's why the model uses unemployment for timing and real arrears for location.</li>
+    <li>Then the genuine test. The simulated national trend follows the real one with a correlation of zero point four one. It rises with reality, but loosely, because only a handful of simulated mortgages are ninety days late in any month.</li>
+    <li>On the left, real arrears in blue climb steadily, and the simulation sits lower. On the right, the regional ranking lines up, but that's by design, because the regional factor was calibrated to these numbers.</li>
+    <li>Why is the simulated level about forty percent of the real one? Real mortgages can stay in arrears for many months while the bank goes through the legal process to sell the home. The model writes loans off after a hundred and twenty days. We report that gap rather than hide it.</li>
+  </ol>
+</section>
+
+<!-- ===================== CHALLENGES ===================== -->
+<section class="slide" data-chapter="Challenges">
+  <p class="eyebrow">Challenges</p>
+  <h2>Traps avoided by design</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Posted vs real rates</span><p>Bond yield + spread, not the sticker price.</p></div>
+    <div class="card" data-s="2"><span class="label">YAML reads ON as true</span><p>Ontario's code became the word <span class="mono">True</span>. Province codes are quoted.</p></div>
+    <div class="card" data-s="3"><span class="label">A model with no defaults</span><p>If late loans need a fresh miss to move on, they stick at 30 days. Late loans cure or roll instead.</p></div>
+    <div class="card" data-s="4"><span class="label">Averaging ratios</span><p>Amounts are stored; rates are SUM ÷ SUM.</p></div>
+  </div>
+  <ol class="say">
+    <li>Some problems were known in advance and avoided by design.</li>
+    <li>Using the posted mortgage rate, which we've already covered.</li>
+    <li>A settings file quirk. The file format reads the letters O N, the code for Ontario, as the word true. So every province code is written in quotes.</li>
+    <li>A delinquency model where late loans needed a fresh missed payment to move on. Loans got stuck at thirty days late and almost never defaulted. The fix: late loans either cure or roll forward.</li>
+    <li>And averaging ratios, which we've also covered.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Challenges">
+  <p class="eyebrow">Challenges</p>
+  <h2>Bugs found by asking "does this make sense?"</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Shared random seed</span><p>Month 1: mortgages 93 late (≈30 expected), cards <b class="risk">zero</b>. Same seed reused the product-picking numbers. Fix: separate seed.</p></div>
+    <div class="card" data-s="2"><span class="label">Data leakage</span><p>"More months → less default": backwards. Defaulted loans leave the data. AUC 0.84 was fake; honest is 0.76.</p></div>
+    <div class="card" data-s="3"><span class="label">Non-reproducible model</span><p>Rows came back in a different order each run, changing the split. Fix: sort by loan id.</p></div>
+    <div class="card" data-s="4"><span class="label">Wrong regional driver</span><p>Unemployment by province ranked Atlantic Canada riskiest. Real arrears say Saskatchewan. Fix: real arrears for where, unemployment for when.</p></div>
+  </div>
+  <div class="analogy" data-s="5"><span class="label">Lesson</span><p>A result that runs without errors can still be wrong. Trace one example back to its source.</p></div>
+  <ol class="say">
+    <li>Other problems were found by asking one question about every result: does this number make sense?</li>
+    <li>In the first month of the simulation, mortgages had ninety-three late loans when about thirty were expected, and credit cards had none at all. The cause: both notebooks used the same seed, so the random numbers that decided who missed a payment were the same ones that had decided each loan's product. The fix was a separate seed.</li>
+    <li>The first model said that loans with more months of history default less. That's backwards. Defaulted loans leave the data, so they automatically have fewer months. The feature secretly contained the answer. That's called data leakage. It made the model look better than it really was, with an A U C of zero point eight four instead of zero point seven six.</li>
+    <li>The model also gave different answers on different runs. The database returned rows in a different order each time, which changed the training split. Sorting the rows fixed it.</li>
+    <li>And the first real-data version used provincial unemployment to decide where risk is high. It ranked Atlantic Canada riskiest. Checking against real arrears showed Saskatchewan is, despite low unemployment. So the model now uses real arrears for where, and unemployment for when.</li>
+    <li>The lesson: a result that runs without errors can still be wrong. Each of these was caught by tracing one example back to its source.</li>
+  </ol>
+</section>
+
+<!-- ===================== RESULTS ===================== -->
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · <span class="badge sim">Simulated portfolio</span> · query Q12</p>
+  <h2>The headline numbers</h2>
+  <div class="grid g3">
+    <div class="card" data-s="1"><span class="label">Total exposure</span><span class="big"><span class="count" data-to="8.40" data-dec="2" data-pre="$" data-suf="B">$8.40B</span></span></div>
+    <div class="card" data-s="1"><span class="label">Delinquency rate</span><span class="big"><span class="count" data-to="0.58" data-dec="2" data-suf="%">0.58%</span></span></div>
+    <div class="card" data-s="1"><span class="label">Impaired rate</span><span class="big"><span class="count" data-to="0.10" data-dec="2" data-suf="%">0.10%</span></span></div>
+    <div class="card" data-s="2"><span class="label">Renewing 2025–27</span><span class="big"><span class="count" data-to="6716" data-dec="0">6,716</span></span><p>$2.70B balance</p></div>
+    <div class="card" data-s="3"><span class="label">Weighted payment shock</span><span class="big risk">+<span class="count" data-to="15.2" data-dec="1" data-suf="%">15.2%</span></span></div>
+    <div class="card" data-s="3"><span class="label">At-risk exposure (&gt; 25%)</span><span class="big risk"><span class="count" data-to="244.9" data-dec="1" data-pre="$" data-suf="M">$244.9M</span></span></div>
+    <div class="card" data-s="4"><span class="label">Added payments / year</span><span class="big"><span class="count" data-to="28.3" data-dec="1" data-pre="$" data-suf="M">$28.3M</span></span></div>
+    <div class="card" data-s="5"><span class="label">Extra provision</span><span class="big"><span class="count" data-to="211222" data-dec="0" data-pre="$">$211,222</span></span></div>
+    <div class="card" data-s="5"><span class="label">Borrowers to call</span><span class="big acc"><span class="count" data-to="2797" data-dec="0">2,797</span></span></div>
+  </div>
+  <ol class="say">
+    <li>Here are the results. Remember: the loan book is simulated, so these describe this portfolio, not real Canadians.</li>
+    <li>The bank has eight point four billion dollars lent out. Zero point five eight percent of it is delinquent, and zero point one percent is impaired.</li>
+    <li>Six thousand seven hundred and sixteen fixed mortgages renew between 2025 and 2027, worth two point seven billion dollars.</li>
+    <li>Weighted by balance, their payments rise by fifteen point two percent on average. Two hundred and forty-five million dollars of that balance faces a shock above twenty-five percent. That's the at-risk exposure.</li>
+    <li>Households will pay twenty-eight point three million dollars more per year.</li>
+    <li>The extra provision is about two hundred and eleven thousand dollars. And two thousand seven hundred and ninety-seven borrowers can still be called before they renew.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · finding 1 · query Q1</p>
+  <h2>2025 and 2026 are the worst of it</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Renewal year</th><th class="num">Loans</th><th class="num">Balance</th><th class="num">Weighted shock</th><th class="num">Already renewed</th></tr></thead>
+      <tbody>
+        <tr data-s="1"><td>2025</td><td class="num">2,189</td><td class="num">$852.8M</td><td class="num risk">+19.8%</td><td class="num">all</td></tr>
+        <tr data-s="1"><td>2026</td><td class="num">2,250</td><td class="num">$900.8M</td><td class="num risk">+20.2%</td><td class="num">1,716</td></tr>
+        <tr data-s="2"><td>2027</td><td class="num">2,277</td><td class="num">$950.0M</td><td class="num">+6.3%</td><td class="num">none</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure data-s="3"><img src="../images/02_renewal_calendar.png" alt="Bar chart of renewing balance by month, 2025 to 2027, grey for already renewed and blue for still to renew"></figure>
+  <ol class="say">
+    <li>Finding one. The wave is large, and 2025 and 2026 are the hardest years.</li>
+    <li>In 2025, two thousand one hundred and eighty-nine mortgages renew, with payments up about twenty percent. In 2026, two thousand two hundred and fifty, also up about twenty percent.</li>
+    <li>In 2027 the shock drops to about six percent.</li>
+    <li>In the chart, grey bars have already renewed. Blue bars are still to come. Those are the borrowers the bank can still reach.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · finding 2 · queries Q3, Q5</p>
+  <h2>Timing, not the borrower</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term started</th><th class="num">Old rate</th><th class="num">New rate</th><th class="num">Shock</th><th class="num">Extra / month</th></tr></thead>
+      <tbody>
+        <tr data-s="1"><td>2020</td><td class="num">1.82%</td><td class="num">4.20%</td><td class="num risk">+19.1%</td><td class="num">$405</td></tr>
+        <tr data-s="2"><td>2021</td><td class="num">2.28%</td><td class="num">4.56%</td><td class="num risk">+20.2%</td><td class="num">$450</td></tr>
+        <tr data-s="3"><td>2022</td><td class="num">4.38%</td><td class="num">4.94%</td><td class="num">+4.2%</td><td class="num">$120</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">Medians.</p>
+  <div class="grid g2">
+    <div class="card" data-s="4"><span class="label">Lift into the high-shock group, by credit band</span><span class="big">0.86 – 1.02</span><p>Every band is hit about equally.</p></div>
+    <figure data-s="4"><img src="../images/03_payment_shock_distribution.png" alt="Histogram of payment shock by year the term started"></figure>
+  </div>
+  <ol class="say">
+    <li>Finding two. The shock depends on when the rate was locked, not on who the borrower is.</li>
+    <li>Terms that started in 2020 locked in at a median of one point eight two percent, and renew at four point two. About four hundred dollars more a month.</li>
+    <li>Terms from 2021 go from two point two eight to four point five six. About four hundred and fifty dollars more.</li>
+    <li>But terms from 2022 started after rates had already risen, at four point three eight percent. Their shock is only about four percent.</li>
+    <li>And every credit band is hit almost equally. Each band's lift into the high-shock group is between zero point eight six and one point zero two.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · finding 3 · queries Q6, Q8</p>
+  <h2>Risk is where shock meets weak credit</h2>
+  <figure data-s="1"><img src="../images/07_default_heatmap.png" alt="Heatmap of 42-month default rate by product and credit band"></figure>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Mortgages</span><p class="mono">1.91% below 600 → 0.28% at 780+</p></div>
+    <div class="card" data-s="1"><span class="label">Cards</span><p class="mono">12.66% below 600 → 1.96% at 780+</p></div>
+  </div>
+  <p data-s="2">Most extra provision per borrower: <b>below 600</b>. Most in total: <b>660–719</b> ($69,506), because it holds the most loans.</p>
+  <ol class="say">
+    <li>Finding three. If the shock hits everyone, where is the risk?</li>
+    <li>It's where the shock meets weak credit. Default rates fall steadily as credit scores rise. For mortgages, from one point nine percent below six hundred, to zero point two eight percent at seven eighty and above. For cards, from almost thirteen percent to about two.</li>
+    <li>So the extra provision per borrower is largest for low scores, even though the middle band, six sixty to seven nineteen, holds the most in total, simply because it has the most loans.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · finding 3b · query Q4 · <span class="badge real">Real arrears</span></p>
+  <h2>Where you live matters</h2>
+  <figure data-s="1"><img src="../images/12_provision_intensity_by_province.png" alt="Bar chart of extra provision per one million dollars of renewing mortgages, by province"></figure>
+  <div class="grid g3">
+    <div class="card" data-s="1"><span class="label">Per $1M of renewing balance</span><span class="big risk">$213</span><p>Saskatchewan</p></div>
+    <div class="card" data-s="1"><span class="label">Per $1M of renewing balance</span><span class="big">$63</span><p>Quebec</p></div>
+    <div class="card" data-s="2"><span class="label">Share of total provision</span><span class="big">38.8%</span><p>Ontario, the biggest</p></div>
+  </div>
+  <ol class="say">
+    <li>A new finding from the real data. Where you live matters.</li>
+    <li>For every million dollars of renewing mortgages, Saskatchewan needs two hundred and thirteen dollars of extra provision. Quebec needs sixty-three. That's because real Saskatchewan mortgages fall behind far more often.</li>
+    <li>Ontario still holds the most in total, thirty-nine percent, simply because it's the biggest. So there are two answers: Ontario by size, Saskatchewan by intensity.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · findings 4 and 5 · query Q9</p>
+  <h2>Nobody gets cheaper; variable debt felt it first</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Finding 4</span><h3>No 2025–27 renewal gets cheaper</h3><p>With rates held flat. Rates peaked in late 2022 at about today's level.</p><p data-s="2">2023–24 signings will reprice cheaper, in 2028–29.</p></div>
+    <div class="card" data-s="3"><span class="label">Finding 5</span><h3>HELOC delinquency rose with prime</h3><p class="mono">0.48% → 0.88% (Q1 2024), then eased</p></div>
+  </div>
+  <figure data-s="3"><img src="../images/06_heloc_vs_prime.png" alt="Line chart: HELOC delinquency against the prime rate, 2023 to 2026"></figure>
+  <ol class="say">
+    <li>Finding four. If rates stay where they are, nobody in this wave gets a cheaper payment. Rates peaked in late 2022 at about today's level.</li>
+    <li>Loans signed in 2023 and 2024 will reprice cheaper, but that happens in 2028 and 2029, outside this window.</li>
+    <li>Finding five. Rate rises showed up in variable-rate debt as they happened.</li>
+    <li>As prime climbed to seven point two percent, he-lock delinquency rose from zero point four eight percent to a peak of zero point eight eight percent in early 2024, then eased as prime fell.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Results · finding 6 · query Q10</p>
+  <h2>The call list</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Province</th><th class="num">Score</th><th>Renews</th><th class="num">Rate</th><th class="num">Extra / month</th></tr></thead>
+      <tbody>
+        <tr data-s="1"><td class="num">1</td><td>Alberta</td><td class="num">586</td><td>Oct 2026</td><td class="num">2.83 → 5.14%</td><td class="num">$875</td></tr>
+        <tr data-s="1"><td class="num">2</td><td>Alberta</td><td class="num">586</td><td>Nov 2026</td><td class="num">3.04 → 5.14%</td><td class="num">$726</td></tr>
+        <tr data-s="1"><td class="num">3</td><td>Saskatchewan</td><td class="num">637</td><td>Oct 2026</td><td class="num">2.75 → 5.06%</td><td class="num">$619</td></tr>
+        <tr data-s="1"><td class="num">4</td><td>Ontario</td><td class="num">595</td><td>Dec 2026</td><td class="num">2.86 → 5.13%</td><td class="num">$766</td></tr>
+        <tr data-s="1"><td class="num">5</td><td>Ontario</td><td class="num">533</td><td>Feb 2027</td><td class="num">3.37 → 5.22%</td><td class="num">$744</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="analogy" data-s="2"><span class="label">What to do</span><p>Contact before renewal and offer options, such as a longer amortization or a different product, before they fall behind.</p></div>
+  <ol class="say">
+    <li>Finding six is the most practical one: a ranked call list.</li>
+    <li>The top three are in Alberta and Saskatchewan, where real arrears are high. All of the top fifteen have credit scores of six forty or below and renew between October 2026 and March 2027, most facing a rate jump of about two percentage points.</li>
+    <li>The bank can contact them before renewal and offer options, such as a longer amortization or a different product, before they fall behind.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Results">
+  <p class="eyebrow">Conclusion</p>
+  <h2>What it all means</h2>
+  <div class="steps">
+    <div class="step" data-s="1"><div><b>Payments rise ~20%</b><span>for mortgages locked in 2020–21.</span></div></div>
+    <div class="step" data-s="2"><div><b>Shock is timing; risk is credit and region</b><span>All bands hit equally; risk concentrates where shock meets weak credit and high-arrears regions.</span></div></div>
+    <div class="step" data-s="3"><div><b>Provision is modest but concentrated</b><span>Homes secure the loans (LGD 10%), so targeted outreach is the efficient response.</span></div></div>
+    <div class="step" data-s="4"><div><b>Call 2,797 borrowers in priority order</b><span>Starting with low scores renewing soonest.</span></div></div>
+  </div>
+  <ol class="say">
+    <li>To conclude.</li>
+    <li>The 2025 to 2027 renewal wave raises payments by about twenty percent for mortgages locked in during 2020 and 2021.</li>
+    <li>The shock is a timing effect. It hits all credit bands equally. The risk concentrates where it meets weak credit, and regions where real arrears are high, like Saskatchewan, Manitoba and Alberta.</li>
+    <li>The extra provision is modest compared with the size of the book, because mortgages are secured by homes. But it's concentrated, which makes targeted outreach the efficient response.</li>
+    <li>So the recommendation: call the two thousand seven hundred and ninety-seven reachable borrowers in priority order, starting with low-score borrowers who renew in the next few months.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Limits and next steps">
+  <p class="eyebrow">Limits and next steps</p>
+  <h2>Limitations, said plainly</h2>
+  <div class="grid g2">
+    <div class="card" data-s="1"><span class="label">Simulated book</span><p>Findings describe this portfolio, not real borrowers.</p></div>
+    <div class="card" data-s="2"><span class="label">Real-data check</span><p>Simulated arrears ~0.4× real; trend correlation 0.41; regional match is calibrated, not tested.</p></div>
+    <div class="card" data-s="3"><span class="label">Flat future rates</span><p>An assumption, not a forecast.</p></div>
+    <div class="card" data-s="4"><span class="label">Small samples</span><p>Some segments have only a handful of defaults.</p></div>
+    <div class="card" data-s="5"><span class="label">The +25% rate effect</span><p>An assumption that directly scales the provision.</p></div>
+  </div>
+  <ol class="say">
+    <li>Every analysis has limits, and saying them clearly builds trust.</li>
+    <li>The loan book is simulated, so the findings describe this portfolio, not real borrowers.</li>
+    <li>Against real data, simulated arrears are about forty percent of the real level, the trend follows only loosely, and the regional match comes from calibration, so it isn't proof.</li>
+    <li>Holding future rates flat is an assumption, not a forecast.</li>
+    <li>Some segments have only a handful of defaults, so their numbers are noisy.</li>
+    <li>And the twenty-five percent rate effect is an assumption that directly scales the provision figure.</li>
+  </ol>
+</section>
+
+<section class="slide" data-chapter="Limits and next steps">
+  <p class="eyebrow">Limits and next steps</p>
+  <h2>What comes next</h2>
+  <div class="grid g3">
+    <div class="card" data-s="1"><span class="label">Power BI dashboard</span><p>Build it from docs/POWERBI_GUIDE.md. Its results get added to this story later.</p></div>
+    <div class="card" data-s="2"><span class="label">Practise out loud</span><p>docs/PROJECT_EXPLAINED.md ends with interview questions and short answers.</p></div>
+    <div class="card" data-s="3"><span class="label">Replay</span><p>Jump to any chapter from the menu below.</p></div>
+  </div>
+  <ol class="say">
+    <li>That's the whole project.</li>
+    <li>The next step is the Power B I dashboard, built from the guide in the docs folder. Its results will be added to this story later.</li>
+    <li>Then practise explaining it out loud. The written guide ends with interview questions and short answers.</li>
+    <li>Thanks for listening. You can replay any chapter from the menu at the bottom.</li>
+  </ol>
+</section>
+
+</main>
+
+<div class="caption wrap" id="captionBar"><p id="caption">Press Play to start the narration.</p></div>
+
+<div class="controls wrap">
+  <div class="progress" aria-hidden="true"><div id="progress"></div></div>
+  <div class="bar-controls">
+    <button id="prev" type="button" aria-label="Previous slide">← Back</button>
+    <button id="play" type="button" class="primary">▶ Play</button>
+    <button id="next" type="button" aria-label="Next slide">Next →</button>
+    <span class="spacer"></span>
+    <div class="ctl-group"><label for="chapter">Chapter</label><select id="chapter"></select></div>
+    <div class="ctl-group"><label for="speed">Speed</label>
+      <select id="speed"><option value="0.8">0.8×</option><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.1">1.1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></div>
+    <div class="ctl-group"><label for="voice">Voice</label><select id="voice"><option value="">Default</option></select></div>
+    <button id="captions" type="button" aria-pressed="true">Captions on</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const lines = slides.map(s => Array.from(s.querySelectorAll(".say li")).map(li => li.textContent.trim()));
+  const $ = id => document.getElementById(id);
+  const synth = window.speechSynthesis;
+  const hasTTS = !!synth && typeof window.SpeechSynthesisUtterance !== "undefined";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let cur = 0, seg = 0, playing = false, token = 0, timer = null, rate = 1, voice = null, current = null;
+
+  function store(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
+  function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+  // ---------- chapter menu ----------
+  const chapterSel = $("chapter");
+  slides.forEach((s, i) => {
+    const name = s.dataset.chapter;
+    if (i === 0 || slides[i - 1].dataset.chapter !== name) {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = name; chapterSel.appendChild(o);
+    }
+  });
+
+  // ---------- count-up numbers ----------
+  function format(n, el) {
+    const dec = +(el.dataset.dec || 0);
+    const txt = n.toLocaleString("en-CA", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    return (el.dataset.pre || "") + txt + (el.dataset.suf || "");
+  }
+  function countUp(el) {
+    const to = parseFloat(el.dataset.to);
+    if (reduceMotion) { el.textContent = format(to, el); return; }
+    const start = performance.now(), dur = 900;
+    function frame(t) {
+      const p = Math.min(1, (t - start) / dur), eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = format(to * eased, el);
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- reveal ----------
+  function reveal(k) {
+    slides[cur].querySelectorAll("[data-s]").forEach(el => {
+      const s = +el.dataset.s;
+      if (s <= k) {
+        if (!el.classList.contains("on")) {
+          el.classList.add("on");
+          el.querySelectorAll(".count").forEach(countUp);
+        }
+      } else {
+        el.classList.remove("on");
+      }
+      el.classList.toggle("now", s === k && k > 0);
+    });
+    $("caption").textContent = lines[cur][k] || "";
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = slides.length;
+    const within = lines[cur].length ? seg / lines[cur].length : 0;
+    $("progress").style.width = ((cur + within) / total * 100).toFixed(2) + "%";
+  }
+
+  function updateUI() {
+    $("slideCount").textContent = (cur + 1) + " / " + slides.length;
+    $("chapLabel").textContent = slides[cur].dataset.chapter;
+    $("play").textContent = playing ? "❚❚ Pause" : "▶ Play";
+    let chap = 0;
+    Array.from(chapterSel.options).forEach(o => { if (+o.value <= cur) chap = o.value; });
+    chapterSel.value = chap;
+    $("prev").disabled = cur === 0;
+    $("next").disabled = cur === slides.length - 1;
+  }
+
+  // ---------- speech ----------
+  function silence() {
+    token++;
+    clearTimeout(timer);
+    if (hasTTS) synth.cancel();
+  }
+
+  function speak() {
+    const my = ++token;
+    const text = lines[cur][seg];
+    $("caption").textContent = text;
+    const done = () => {
+      if (my !== token || !playing) return;
+      if (seg < lines[cur].length - 1) {
+        seg++; reveal(seg); speak();
+      } else if (cur < slides.length - 1) {
+        timer = setTimeout(() => { if (my === token && playing) show(cur + 1); }, 700);
+      } else {
+        playing = false; updateUI();
+      }
+    };
+    if (hasTTS) {
+      // short delay: Chrome sometimes drops speech queued right after cancel()
+      timer = setTimeout(() => {
+        if (my !== token) return;
+        current = new SpeechSynthesisUtterance(text);   // kept in a variable so it isn't garbage-collected mid-sentence
+        current.rate = rate;
+        if (voice) { current.voice = voice; current.lang = voice.lang; } else { current.lang = "en-CA"; }
+        current.onend = done;
+        current.onerror = e => { if (e.error === "interrupted" || e.error === "canceled") return; done(); };
+        synth.speak(current);
+      }, 60);
+    } else {
+      // No speech engine: advance at a reading pace so captions still work
+      const words = text.split(/\s+/).length;
+      timer = setTimeout(done, Math.max(1800, words / (2.6 * rate) * 1000));
+    }
+  }
+
+  function show(i) {
+    silence();
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, k) => { s.hidden = k !== cur; s.classList.remove("enter"); });
+    void slides[cur].offsetWidth;
+    slides[cur].classList.add("enter");
+    $("stage").scrollTop = 0;
+    seg = 0;
+    reveal(0);
+    updateUI();
+    store("renewal-deck-slide", String(cur));
+    if (playing) speak();
+  }
+
+  function play() {
+    if (cur === slides.length - 1 && seg === lines[cur].length - 1 && !playing) { /* replay last line */ }
+    playing = true; updateUI(); speak();
+  }
+  function pause() { playing = false; silence(); updateUI(); }
+  function toggle() { playing ? pause() : play(); }
+
+  // While paused, clicking the slide steps one line forward
+  function stepLine() {
+    if (playing) return;
+    if (seg < lines[cur].length - 1) { seg++; reveal(seg); }
+    else if (cur < slides.length - 1) show(cur + 1);
+  }
+
+  // ---------- voices ----------
+  function loadVoices() {
+    if (!hasTTS) {
+      const sel = $("voice"); sel.innerHTML = "<option>No speech in this browser</option>"; sel.disabled = true;
+      $("caption").textContent = "This browser has no built-in speech. Captions will advance at reading pace when you press Play.";
+      return;
+    }
+    const all = synth.getVoices().filter(v => /^en/i.test(v.lang));
+    if (!all.length) return;
+    const score = v => (/natural/i.test(v.name) ? 0 : 10) + (/en-CA/i.test(v.lang) ? 0 : /en-US/i.test(v.lang) ? 1 : /en-GB/i.test(v.lang) ? 2 : 3);
+    all.sort((a, b) => score(a) - score(b) || a.name.localeCompare(b.name));
+    const sel = $("voice");
+    sel.innerHTML = "";
+    all.forEach(v => {
+      const o = document.createElement("option");
+      o.value = v.voiceURI; o.textContent = v.name.replace(/^Microsoft\s+/, "").replace(/\s*-\s*English.*$/, "") + " (" + v.lang + ")";
+      sel.appendChild(o);
+    });
+    const saved = load("renewal-deck-voice");
+    voice = all.find(v => v.voiceURI === saved) || all[0];
+    sel.value = voice.voiceURI;
+  }
+
+  // ---------- wiring ----------
+  $("play").addEventListener("click", toggle);
+  $("prev").addEventListener("click", () => show(cur - 1));
+  $("next").addEventListener("click", () => show(cur + 1));
+  chapterSel.addEventListener("change", () => show(+chapterSel.value));
+  $("speed").addEventListener("change", e => {
+    rate = parseFloat(e.target.value); store("renewal-deck-speed", e.target.value);
+    if (playing) speak();   // restart the current line at the new speed
+  });
+  $("voice").addEventListener("change", e => {
+    if (!hasTTS) return;
+    voice = synth.getVoices().find(v => v.voiceURI === e.target.value) || null;
+    store("renewal-deck-voice", e.target.value);
+    if (playing) speak();
+  });
+  $("captions").addEventListener("click", e => {
+    const bar = $("captionBar"); bar.hidden = !bar.hidden;
+    e.target.textContent = bar.hidden ? "Captions off" : "Captions on";
+    e.target.setAttribute("aria-pressed", String(!bar.hidden));
+  });
+  $("stage").addEventListener("click", e => { if (!e.target.closest("button, select, a")) stepLine(); });
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("select")) return;
+    if (e.code === "Space") { e.preventDefault(); toggle(); }
+    else if (e.key === "ArrowRight") show(cur + 1);
+    else if (e.key === "ArrowLeft") show(cur - 1);
+  });
+
+  const savedSpeed = load("renewal-deck-speed");
+  if (savedSpeed) { rate = parseFloat(savedSpeed); $("speed").value = savedSpeed; }
+  if (hasTTS) { loadVoices(); synth.addEventListener ? synth.addEventListener("voiceschanged", loadVoices) : (synth.onvoiceschanged = loadVoices); }
+  else loadVoices();
+
+  const savedSlide = parseInt(load("renewal-deck-slide") || "0", 10);
+  show(isNaN(savedSlide) ? 0 : savedSlide);
+})();
+</script>
+
+</body>
+</html>
