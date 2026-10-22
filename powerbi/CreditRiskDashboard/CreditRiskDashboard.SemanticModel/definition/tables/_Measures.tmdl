@@ -172,16 +172,6 @@ table _Measures
 		displayFolder: 3 Real economy & validation
 		lineageTag: b7c55a5f-3284-5c65-abcd-20ad6555d19f
 
-	/// REAL. Unemployment over the analysis window only (the months the loans are simulated), to match Q4.
-	measure 'Unemployment Rate (Analysis Window)' =
-			VAR FirstMonth = CALCULATE ( MIN ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
-			VAR LastMonth = CALCULATE ( MAX ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
-			RETURN
-			    CALCULATE ( [Unemployment Rate], dim_month[month] >= FirstMonth, dim_month[month] <= LastMonth )
-		formatString: 0.0
-		displayFolder: 3 Real economy & validation
-		lineageTag: b18b0463-b2ad-417c-9413-c80c6051dabe
-
 	/// REAL (CBA). Mortgages 90+ days behind / mortgages.
 	measure 'Real Arrears Rate' = DIVIDE ( SUM ( arrears_validation[real_in_arrears] ), SUM ( arrears_validation[real_mortgages] ) )
 		formatString: 0.000%
@@ -276,6 +266,16 @@ table _Measures
 			    & " held flat (assumption)"
 		displayFolder: 5 Data quality & provenance
 		lineageTag: 78ebfae2-899e-56c7-8c7b-e4e86d296733
+
+	/// REAL. Unemployment over the analysis window only (the months the loans are simulated), to match Q4.
+	measure 'Unemployment Rate (Analysis Window)' =
+			VAR FirstMonth = CALCULATE ( MIN ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+			VAR LastMonth = CALCULATE ( MAX ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+			RETURN
+			    CALCULATE ( [Unemployment Rate], dim_month[month] >= FirstMonth, dim_month[month] <= LastMonth )
+		formatString: 0.0
+		displayFolder: 3 Real economy & validation
+		lineageTag: b18b0463-b2ad-417c-9413-c80c6051dabe
 
 	column Value
 		isHidden

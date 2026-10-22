@@ -75,14 +75,6 @@ table fact_renewal
 
 		annotation SummarizationSetBy = User
 
-	/// Plain-English version of already_renewed, for chart legends.
-	column renewal_status = IF ( fact_renewal[already_renewed], "Already renewed", "Still to renew" )
-		dataType: string
-		lineageTag: 492d11b0-91f4-40a9-9bed-6058a6fb1f50
-		summarizeBy: none
-
-		annotation SummarizationSetBy = Automatic
-
 	column old_rate
 		dataType: double
 		lineageTag: ed20250d-e9fa-50a5-88f1-e1279ce05f4d
@@ -275,6 +267,14 @@ table fact_renewal
 		sourceColumn: outreach_priority
 
 		annotation SummarizationSetBy = User
+
+	/// Plain-English version of already_renewed, for chart legends.
+	column renewal_status = IF ( fact_renewal[already_renewed], "Already renewed", "Still to renew" )
+		dataType: string
+		lineageTag: 492d11b0-91f4-40a9-9bed-6058a6fb1f50
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
 
 	partition fact_renewal = m
 		mode: import

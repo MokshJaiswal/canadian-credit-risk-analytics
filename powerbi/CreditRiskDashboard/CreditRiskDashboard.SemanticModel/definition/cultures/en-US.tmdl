@@ -12,19 +12,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "already_renewed"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Already renewed": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "fact_renewal.renewal_year": {
 			      "Definition": {
@@ -991,6 +979,48 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Result": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_renewal.renewal_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_renewal",
+			          "ConceptualProperty": "renewal_status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Renewal status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "table_measures.unemployment_rate_analysis_window": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "_Measures",
+			          "ConceptualProperty": "Unemployment Rate (Analysis Window)"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Unemployment, Apr 2023-Sep 2026 (%)": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
