@@ -1,0 +1,61 @@
+/// Loan products: secured/unsecured and loss given default.
+table dim_product
+	lineageTag: ccad65e0-74b1-540a-aa7e-ed1d4b098d60
+
+	column product
+		dataType: string
+		lineageTag: 4a6ef8c0-62aa-52bd-bef5-339108c5a7d3
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = User
+
+	column product_name
+		dataType: string
+		lineageTag: f42ca38f-69c7-554d-b431-8fdf1ace66b0
+		summarizeBy: none
+		sourceColumn: product_name
+		sortByColumn: sort_order
+
+		annotation SummarizationSetBy = User
+
+	column secured
+		dataType: string
+		lineageTag: a9d30305-7fa1-5ad1-8e1c-22517302a9af
+		summarizeBy: none
+		sourceColumn: secured
+
+		annotation SummarizationSetBy = User
+
+	column loss_given_default
+		dataType: double
+		lineageTag: 5ce15650-7a48-5f2d-8663-b8fe86347ef5
+		summarizeBy: none
+		sourceColumn: loss_given_default
+
+		annotation SummarizationSetBy = User
+
+	column sort_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4c65f647-92ac-5a99-9791-3ffec2107b42
+		summarizeBy: none
+		sourceColumn: sort_order
+
+		annotation SummarizationSetBy = User
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dim_product.csv"), [Delimiter = ",", Columns = 5, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"product", type text}, {"product_name", type text}, {"secured", type text}, {"loss_given_default", type number}, {"sort_order", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,292 @@
+/// SIMULATED: one row per fixed mortgage renewing in 2025-27. The headline analysis.
+table fact_renewal
+	lineageTag: f47d57c8-9ef2-5c73-8fa6-2c545d4c5213
+
+	column product
+		dataType: string
+		isHidden
+		lineageTag: 1bdfb52d-28eb-5974-b30c-2866a13502a5
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = User
+
+	column loan_id
+		dataType: int64
+		formatString: 0
+		lineageTag: eaed1062-5f5f-519a-869c-e031054c2188
+		summarizeBy: none
+		sourceColumn: loan_id
+
+		annotation SummarizationSetBy = User
+
+	column province
+		dataType: string
+		isHidden
+		lineageTag: d6a149e9-9f83-5fd0-a8e9-256e6746c32e
+		summarizeBy: none
+		sourceColumn: province
+
+		annotation SummarizationSetBy = User
+
+	column credit_band
+		dataType: string
+		isHidden
+		lineageTag: e6107bb0-3137-5591-8427-5e31da06c966
+		summarizeBy: none
+		sourceColumn: credit_band
+
+		annotation SummarizationSetBy = User
+
+	column credit_score
+		dataType: int64
+		formatString: 0
+		lineageTag: a3ae4adc-5798-5fbd-93b4-8c3a1530e15a
+		summarizeBy: none
+		sourceColumn: credit_score
+
+		annotation SummarizationSetBy = User
+
+	column renewal_month
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 38b20b63-83c8-5533-986a-f168f3b6159e
+		summarizeBy: none
+		sourceColumn: renewal_month
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column renewal_year
+		dataType: int64
+		formatString: 0
+		lineageTag: b9b90a24-5789-5ff3-bcda-305bbbcfb1b8
+		summarizeBy: none
+		sourceColumn: renewal_year
+
+		annotation SummarizationSetBy = User
+
+	column already_renewed
+		dataType: boolean
+		lineageTag: 8c454445-35e8-59df-a06c-e819b72cbfd3
+		summarizeBy: none
+		sourceColumn: already_renewed
+
+		annotation SummarizationSetBy = User
+
+	/// Plain-English version of already_renewed, for chart legends.
+	column renewal_status = IF ( fact_renewal[already_renewed], "Already renewed", "Still to renew" )
+		dataType: string
+		lineageTag: 492d11b0-91f4-40a9-9bed-6058a6fb1f50
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column old_rate
+		dataType: double
+		lineageTag: ed20250d-e9fa-50a5-88f1-e1279ce05f4d
+		summarizeBy: none
+		sourceColumn: old_rate
+
+		annotation SummarizationSetBy = User
+
+	column new_rate
+		dataType: double
+		lineageTag: 1ef29751-4245-51b4-a4d6-e8e259a6e83f
+		summarizeBy: none
+		sourceColumn: new_rate
+
+		annotation SummarizationSetBy = User
+
+	column rate_jump_pp
+		dataType: double
+		lineageTag: e2a7c09e-62ca-5323-9dc8-4d58262656e3
+		summarizeBy: none
+		sourceColumn: rate_jump_pp
+
+		annotation SummarizationSetBy = User
+
+	column balance_at_renewal
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 4761ba2a-2167-5686-85f8-d9c631f8d120
+		summarizeBy: none
+		sourceColumn: balance_at_renewal
+
+		annotation SummarizationSetBy = User
+
+	column old_payment
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 01945826-c4a3-5c4d-952e-917e1102bbae
+		summarizeBy: none
+		sourceColumn: old_payment
+
+		annotation SummarizationSetBy = User
+
+	column new_payment
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: f0a7feb2-2f00-5209-8a89-edd8e774e6fe
+		summarizeBy: none
+		sourceColumn: new_payment
+
+		annotation SummarizationSetBy = User
+
+	column payment_increase
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: ca97a47a-a19c-5194-acb0-82158d10ead4
+		summarizeBy: none
+		sourceColumn: payment_increase
+
+		annotation SummarizationSetBy = User
+
+	column annual_payment_increase
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 02c244ad-01c1-5cf2-92a9-2158bda6b4e9
+		summarizeBy: none
+		sourceColumn: annual_payment_increase
+
+		annotation SummarizationSetBy = User
+
+	column payment_shock_pct
+		dataType: double
+		lineageTag: 9f7abfba-8503-50b6-b1ce-a947b121ffc5
+		summarizeBy: none
+		sourceColumn: payment_shock_pct
+
+		annotation SummarizationSetBy = User
+
+	column shock_band
+		dataType: string
+		lineageTag: 88bdf958-6fee-5f45-81d9-b7837c12fdff
+		summarizeBy: none
+		sourceColumn: shock_band
+
+		annotation SummarizationSetBy = User
+
+	column is_severe_shock
+		dataType: boolean
+		lineageTag: 72c3c64c-3648-5218-bd2c-8406eea7ec8f
+		summarizeBy: none
+		sourceColumn: is_severe_shock
+
+		annotation SummarizationSetBy = User
+
+	column has_defaulted
+		dataType: boolean
+		lineageTag: 7e84b2b0-4831-56e6-be69-6b9da6cd269a
+		summarizeBy: none
+		sourceColumn: has_defaulted
+
+		annotation SummarizationSetBy = User
+
+	column new_rate_source
+		dataType: string
+		lineageTag: 69d5f08a-0eb0-5d76-917a-2f69d0f73989
+		summarizeBy: none
+		sourceColumn: new_rate_source
+
+		annotation SummarizationSetBy = User
+
+	column source
+		dataType: string
+		lineageTag: 4fb15923-923c-598e-b392-ab6790fc6d06
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = User
+
+	column region_factor
+		dataType: double
+		lineageTag: 0f7cd001-35c7-5e86-99be-d58ccdf687bd
+		summarizeBy: none
+		sourceColumn: region_factor
+
+		annotation SummarizationSetBy = User
+
+	column base_pd_12m
+		dataType: double
+		lineageTag: 822bacbc-4f38-5212-945d-41c14dd83c36
+		summarizeBy: none
+		sourceColumn: base_pd_12m
+
+		annotation SummarizationSetBy = User
+
+	column stressed_pd_12m
+		dataType: double
+		lineageTag: e8b012a9-0a05-563b-a5c8-ab75ef50b3c0
+		summarizeBy: none
+		sourceColumn: stressed_pd_12m
+
+		annotation SummarizationSetBy = User
+
+	column loss_given_default
+		dataType: double
+		lineageTag: 71c07a84-82db-5033-b8f6-5533f88119fd
+		summarizeBy: none
+		sourceColumn: loss_given_default
+
+		annotation SummarizationSetBy = User
+
+	column expected_loss_before
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 08731b9c-393c-5383-bb8d-345377b6cc04
+		summarizeBy: none
+		sourceColumn: expected_loss_before
+
+		annotation SummarizationSetBy = User
+
+	column expected_loss_after
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 1b5c2fd0-5462-5ff8-a3bd-b4b677032f72
+		summarizeBy: none
+		sourceColumn: expected_loss_after
+
+		annotation SummarizationSetBy = User
+
+	column incremental_provision
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: b2959706-0a52-539a-bb1d-2bad643d3256
+		summarizeBy: none
+		sourceColumn: incremental_provision
+
+		annotation SummarizationSetBy = User
+
+	column can_contact
+		dataType: boolean
+		lineageTag: 6552ee33-0b47-5887-8f4c-f3be30de4b59
+		summarizeBy: none
+		sourceColumn: can_contact
+
+		annotation SummarizationSetBy = User
+
+	column outreach_priority
+		dataType: int64
+		formatString: 0
+		lineageTag: 194d8b1b-bf5e-580f-8a28-bc3207a95eb7
+		summarizeBy: none
+		sourceColumn: outreach_priority
+
+		annotation SummarizationSetBy = User
+
+	partition fact_renewal = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "fact_renewal.csv"), [Delimiter = ",", Columns = 31, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"product", type text}, {"loan_id", Int64.Type}, {"province", type text}, {"credit_band", type text}, {"credit_score", Int64.Type}, {"renewal_month", type date}, {"renewal_year", Int64.Type}, {"already_renewed", type logical}, {"old_rate", type number}, {"new_rate", type number}, {"rate_jump_pp", type number}, {"balance_at_renewal", Currency.Type}, {"old_payment", Currency.Type}, {"new_payment", Currency.Type}, {"payment_increase", Currency.Type}, {"annual_payment_increase", Currency.Type}, {"payment_shock_pct", type number}, {"shock_band", type text}, {"is_severe_shock", type logical}, {"has_defaulted", type logical}, {"new_rate_source", type text}, {"source", type text}, {"region_factor", type number}, {"base_pd_12m", type number}, {"stressed_pd_12m", type number}, {"loss_given_default", type number}, {"expected_loss_before", Currency.Type}, {"expected_loss_after", Currency.Type}, {"incremental_provision", Currency.Type}, {"can_contact", type logical}, {"outreach_priority", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,70 @@
+/// SIMULATED 42-month default rates by product x credit band.
+table pd_by_segment
+	lineageTag: cd61b13b-49ec-5ee9-935b-9ed86aa7025a
+
+	column product
+		dataType: string
+		isHidden
+		lineageTag: 6993c858-6916-585a-83bb-6d2a06714004
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = User
+
+	column credit_band
+		dataType: string
+		isHidden
+		lineageTag: 682f9b10-4ad8-5326-ad94-175adc27db84
+		summarizeBy: none
+		sourceColumn: credit_band
+
+		annotation SummarizationSetBy = User
+
+	column loans_in_cohort
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f44da19-64b1-5a9d-91c0-96d6ad2ce6f3
+		summarizeBy: sum
+		sourceColumn: loans_in_cohort
+
+		annotation SummarizationSetBy = User
+
+	column defaulted_loans
+		dataType: int64
+		formatString: 0
+		lineageTag: 424b23d9-dd54-5abf-b749-97bf407a7098
+		summarizeBy: sum
+		sourceColumn: defaulted_loans
+
+		annotation SummarizationSetBy = User
+
+	column default_rate_42m
+		dataType: double
+		lineageTag: 2d5229a2-b163-5e40-b7a5-bda930d5d7f9
+		summarizeBy: none
+		sourceColumn: default_rate_42m
+
+		annotation SummarizationSetBy = User
+
+	column pd_12m
+		dataType: double
+		lineageTag: 29f56408-9675-506d-8877-d0f7918466ab
+		summarizeBy: none
+		sourceColumn: pd_12m
+
+		annotation SummarizationSetBy = User
+
+	partition pd_by_segment = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "pd_by_segment.csv"), [Delimiter = ",", Columns = 6, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"product", type text}, {"credit_band", type text}, {"loans_in_cohort", Int64.Type}, {"defaulted_loans", Int64.Type}, {"default_rate_42m", type number}, {"pd_12m", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

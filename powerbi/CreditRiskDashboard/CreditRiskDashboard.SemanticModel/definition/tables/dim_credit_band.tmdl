@@ -1,0 +1,55 @@
+/// Credit score bands with a sort order.
+table dim_credit_band
+	lineageTag: e09da422-de0d-5692-afb1-465247779844
+
+	column credit_band
+		dataType: string
+		lineageTag: 9a577f79-e750-58b1-9f8d-cfc91da7ec76
+		summarizeBy: none
+		sourceColumn: credit_band
+		sortByColumn: sort_order
+
+		annotation SummarizationSetBy = User
+
+	column min_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 899b2e37-69bf-5769-a71d-87419bceec44
+		summarizeBy: none
+		sourceColumn: min_score
+
+		annotation SummarizationSetBy = User
+
+	column max_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 434b8a8d-0be7-5ebe-80ee-970d2e87120f
+		summarizeBy: none
+		sourceColumn: max_score
+
+		annotation SummarizationSetBy = User
+
+	column sort_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: de11dc97-94e5-5f53-b8f7-cb76900b3385
+		summarizeBy: none
+		sourceColumn: sort_order
+
+		annotation SummarizationSetBy = User
+
+	partition dim_credit_band = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dim_credit_band.csv"), [Delimiter = ",", Columns = 4, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"credit_band", type text}, {"min_score", Int64.Type}, {"max_score", Int64.Type}, {"sort_order", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

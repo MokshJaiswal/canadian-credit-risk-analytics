@@ -50,10 +50,14 @@ Has twice said the code felt "like a senior programmer" — take that seriously.
 | `notebooks/05_default_risk_model.ipynb` | Logistic regression (scikit-learn) |
 | `sql/01..05` | load raw → star schema + analysis + `arrears_validation` → 23 quality checks → Q1–Q15 → Power BI CSVs |
 | `powerbi/data/*.csv` | Committed exports for the dashboard |
+| `powerbi/CreditRiskDashboard/` | The Power BI report (PBIP: TMDL model + PBIR report, plain text). Reads `powerbi/data/` via the `DataFolder` parameter. Edit in Desktop or as text; the generator scripts used for the first build are deliberately not in the repo |
+| `images/dashboard/` | Screenshots of the 7 report pages |
 | `docs/POWERBI_GUIDE.md` | Dashboard model, DAX, pages, expected values (from Q12) |
 | `README.md` | Findings — every number cites a query (Q1–Q12) |
 
-The owner builds the Power BI report themselves from the guide. Later: dbt port of `sql/`.
+The Power BI report is built (2026-10-21) and was checked page by page against Q1–Q15. Later: dbt port of `sql/`.
+To validate PBIP edits without Desktop: Microsoft's schemas (github.com/microsoft/json-schemas) + a
+binding/TMDL check; Desktop may save visuals with a schema version newer than the published one.
 
 Out of scope: Postgres, Streamlit, GitHub Actions, the lender-rate scraper,
 pytest, bootstrap scripts, foreclosure-timeline modelling.

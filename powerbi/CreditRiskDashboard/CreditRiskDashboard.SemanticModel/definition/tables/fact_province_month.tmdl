@@ -1,0 +1,63 @@
+/// REAL Statistics Canada unemployment rate and population by province x month.
+table fact_province_month
+	lineageTag: 82cbb36b-b750-5eaf-9114-cf6b86d89487
+
+	column month
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: 92c96f4b-9a63-574b-bb3e-3aced44a1e41
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column province
+		dataType: string
+		isHidden
+		lineageTag: 9622f778-fd27-5ad3-8ed0-c49b58b8a400
+		summarizeBy: none
+		sourceColumn: province
+
+		annotation SummarizationSetBy = User
+
+	column unemployment_rate
+		dataType: double
+		lineageTag: 7eac0c36-5793-5084-93f3-f52720950b0f
+		summarizeBy: none
+		sourceColumn: unemployment_rate
+
+		annotation SummarizationSetBy = User
+
+	column population_thousands
+		dataType: double
+		lineageTag: fcb51edd-919f-5859-b161-6b9910b8d09c
+		summarizeBy: sum
+		sourceColumn: population_thousands
+
+		annotation SummarizationSetBy = User
+
+	column source
+		dataType: string
+		lineageTag: c034735c-ed9b-52e5-aafe-20dab7d16864
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = User
+
+	partition fact_province_month = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "fact_province_month.csv"), [Delimiter = ",", Columns = 5, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"month", type date}, {"province", type text}, {"unemployment_rate", type number}, {"population_thousands", type number}, {"source", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
+  "pageOrder": [
+    "executive-summary",
+    "renewal-cliff",
+    "where-risk-sits",
+    "portfolio-performance",
+    "outreach-call-list",
+    "reality-check",
+    "data-quality"
+  ],
+  "activePageName": "portfolio-performance"
+}

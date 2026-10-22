@@ -1,0 +1,154 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "scatter_old_vs_new_rate",
+  "position": {
+    "x": 440,
+    "y": 168,
+    "z": 13000,
+    "height": 508,
+    "width": 816,
+    "tabOrder": 13000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_renewal"
+                    }
+                  },
+                  "Property": "loan_id"
+                }
+              },
+              "queryRef": "fact_renewal.loan_id",
+              "nativeQueryRef": "loan_id",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_renewal"
+                    }
+                  },
+                  "Property": "renewal_year"
+                }
+              },
+              "queryRef": "fact_renewal.renewal_year",
+              "nativeQueryRef": "renewal_year",
+              "displayName": "Renewal year"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Old Rate"
+                }
+              },
+              "queryRef": "_Measures.Old Rate",
+              "nativeQueryRef": "Old Rate",
+              "active": true,
+              "displayName": "Old rate (%)"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "New Rate"
+                }
+              },
+              "queryRef": "_Measures.New Rate",
+              "nativeQueryRef": "New Rate",
+              "displayName": "New rate (%)"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "legend": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "position": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Old rate vs new rate, one point per mortgage: points far above the diagonal are the shock'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Old rate vs new rate, one point per mortgage: points far above the diagonal are the shock'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,81 @@
+/// Simulated vs REAL (Canadian Bankers Association) mortgage arrears by CBA region x month. Real counts are blank for Aug-Sep 2026 (not yet published).
+table arrears_validation
+	lineageTag: 4e808b75-002b-5c57-b63c-e45d4636a043
+
+	column month
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d73b54ff-ef2d-5096-b41b-a366a6f99448
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column region
+		dataType: string
+		lineageTag: 4673a629-daf8-5986-990d-e0f1f98688c7
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = User
+
+	column simulated_mortgages
+		dataType: int64
+		formatString: 0
+		lineageTag: 0c816c17-11bb-592d-8c2c-ac433ba70c72
+		summarizeBy: sum
+		sourceColumn: simulated_mortgages
+
+		annotation SummarizationSetBy = User
+
+	column simulated_in_arrears
+		dataType: int64
+		formatString: 0
+		lineageTag: b8f3a8f7-ae49-5cd5-bd4d-4a5585fd8004
+		summarizeBy: sum
+		sourceColumn: simulated_in_arrears
+
+		annotation SummarizationSetBy = User
+
+	column real_mortgages
+		dataType: int64
+		formatString: 0
+		lineageTag: 66f8a66b-65eb-58aa-b3fa-edfd6d22f032
+		summarizeBy: sum
+		sourceColumn: real_mortgages
+
+		annotation SummarizationSetBy = User
+
+	column real_in_arrears
+		dataType: int64
+		formatString: 0
+		lineageTag: 6ebd378b-cbbf-50ad-b0b2-771f972a79a0
+		summarizeBy: sum
+		sourceColumn: real_in_arrears
+
+		annotation SummarizationSetBy = User
+
+	column source
+		dataType: string
+		lineageTag: 83641ca9-9d6d-5282-83da-0c13ad25a864
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = User
+
+	partition arrears_validation = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "arrears_validation.csv"), [Delimiter = ",", Columns = 7, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"month", type date}, {"region", type text}, {"simulated_mortgages", Int64.Type}, {"simulated_in_arrears", Int64.Type}, {"real_mortgages", Int64.Type}, {"real_in_arrears", Int64.Type}, {"source", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

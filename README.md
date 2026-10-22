@@ -67,6 +67,30 @@ All numbers come from the SQL queries in [`sql/04_analysis_queries.sql`](sql/04_
 ![Renewal calendar](images/02_renewal_calendar.png)
 ![Provision intensity by province](images/12_provision_intensity_by_province.png)
 
+## The dashboard
+
+A 7-page Power BI report ([`powerbi/CreditRiskDashboard/`](powerbi/CreditRiskDashboard/), a Power BI
+Project you can open in Power BI Desktop). Every card and chart was checked against the SQL results.
+
+| Page | What it answers |
+| --- | --- |
+| 1. Executive summary | Five KPIs, the renewal wave, and the real rate history |
+| 2. Renewal cliff | How big the shock is, by year and by band; old rate vs new rate per mortgage |
+| 3. Where the risk sits | Provision per $1M by province, province × credit band, unemployment vs risk |
+| 4. Portfolio performance | Delinquency by product, HELOCs vs prime, default rates by segment and vintage |
+| 5. Outreach call list | The top 100 borrowers to contact, in priority order |
+| 6. Reality check | The simulation against real CBA arrears and real unemployment |
+| 7. Data quality | All 23 checks and their results |
+
+![Executive summary](images/dashboard/01_executive_summary.png)
+![Where the risk sits](images/dashboard/03_where_the_risk_sits.png)
+![Reality check](images/dashboard/06_reality_check.png)
+
+Other pages: [renewal cliff](images/dashboard/02_renewal_cliff.png) ·
+[portfolio performance](images/dashboard/04_portfolio_performance.png) ·
+[call list](images/dashboard/05_outreach_call_list.png) ·
+[data quality](images/dashboard/07_data_quality.png)
+
 ## Validation against real data
 
 The simulation is **driven** by one real source and **checked** against another, so the check
@@ -108,7 +132,7 @@ DuckDB warehouse
              business questions Q1–Q12, validation Q13–Q15      sql/04_analysis_queries.sql
         │                                                       sql/05_export_powerbi.sql
         ▼
-powerbi/data/*.csv ──► Power BI dashboard (guide: docs/POWERBI_GUIDE.md)
+powerbi/data/*.csv ──► Power BI dashboard (powerbi/CreditRiskDashboard/, guide: docs/POWERBI_GUIDE.md)
         ├──► 04_analysis_and_charts.ipynb  (pandas + seaborn charts → images/)
         └──► 05_default_risk_model.ipynb   (logistic regression)
 ```
@@ -217,6 +241,10 @@ Then open the notebooks in VS Code (or Jupyter) and **Run All** in order: `01` �
 re-running reproduces every number above. The CBA file name includes its month; when a newer file
 is published, update the URL in `config/pipeline.yml`.
 
+To see the dashboard, open `powerbi/CreditRiskDashboard/CreditRiskDashboard.pbip` in Power BI Desktop
+and click **Refresh**. It reads the CSVs in `powerbi/data/` (see that folder's README if your repo is
+somewhere other than `C:\dev\`).
+
 ## Repository
 
 ```text
@@ -227,9 +255,10 @@ src/logger.py                logging to screen + logs/pipeline.log
 notebooks/                   01-05: simulate → warehouse → analysis → model
 sql/                         01-05: load → build → quality checks → questions → export
 powerbi/data/                CSVs for the Power BI report
+powerbi/CreditRiskDashboard/ the Power BI report (Power BI Project: open the .pbip)
 docs/POWERBI_GUIDE.md        dashboard build guide: model, DAX measures, pages, expected values
 docs/PROJECT_EXPLAINED.md    the whole project explained from scratch
 docs/presentation.html       narrated 42-slide walkthrough (open in Edge; also published online)
 docs/PROJECT-BRIEF.md        background research: Canadian job market, domain explainer
-images/                      charts used in this README
+images/                      charts used in this README; images/dashboard/ = report screenshots
 ```

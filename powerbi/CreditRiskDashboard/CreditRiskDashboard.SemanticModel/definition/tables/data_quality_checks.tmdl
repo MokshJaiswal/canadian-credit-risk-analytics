@@ -1,0 +1,69 @@
+/// The 23 data-quality checks run before export, and their results.
+table data_quality_checks
+	lineageTag: 61b2fc10-2fbc-5f8f-8ada-9caea7fc3558
+
+	column dimension
+		dataType: string
+		lineageTag: 4e7215ef-456b-510d-87a9-fb968fe4de61
+		summarizeBy: none
+		sourceColumn: dimension
+
+		annotation SummarizationSetBy = User
+
+	column check_name
+		dataType: string
+		lineageTag: ad9b2595-6afa-5249-ac06-16fc53c6358c
+		summarizeBy: none
+		sourceColumn: check_name
+
+		annotation SummarizationSetBy = User
+
+	column severity
+		dataType: string
+		lineageTag: 4fae036b-aaf4-5f40-a7c2-5d292d26095f
+		summarizeBy: none
+		sourceColumn: severity
+
+		annotation SummarizationSetBy = User
+
+	column failed_rows
+		dataType: int64
+		formatString: 0
+		lineageTag: d99d6968-8d85-5ab9-a9a4-8b74e0b8416c
+		summarizeBy: none
+		sourceColumn: failed_rows
+
+		annotation SummarizationSetBy = User
+
+	column result
+		dataType: string
+		lineageTag: e88caa2d-0041-5fa0-8095-899d22a56e8a
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = User
+
+	column checked_at
+		dataType: dateTime
+		formatString: yyyy-mm-dd hh:nn
+		lineageTag: 9de31ddd-5985-5d93-8b88-838f9fd512e0
+		summarizeBy: none
+		sourceColumn: checked_at
+
+		annotation SummarizationSetBy = User
+
+	partition data_quality_checks = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "data_quality_checks.csv"), [Delimiter = ",", Columns = 6, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    ParsedTime = Table.TransformColumns(BlanksToNull, {{"checked_at", each DateTime.FromText(Text.Start(_, 19), [Format = "yyyy-MM-dd HH:mm:ss", Culture = "en-US"]), type datetime}}),
+				    Typed = Table.TransformColumnTypes(ParsedTime, {{"dimension", type text}, {"check_name", type text}, {"severity", type text}, {"failed_rows", Int64.Type}, {"result", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

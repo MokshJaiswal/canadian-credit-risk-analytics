@@ -964,10 +964,35 @@ scores of 640 or below and renew Oct 2026 – Mar 2027, most with a ~2pp rate ju
 
 ## 17. Power BI dashboard results
 
-> *To be added once the dashboard is built (see `docs/POWERBI_GUIDE.md`).*
->
-> Suggested contents: a screenshot of each page, a link to the published report, and a note
-> confirming the KPI cards match Q12.
+The report lives in `powerbi/CreditRiskDashboard/` (open the `.pbip` in Power BI Desktop). It has
+seven pages, each answering one question, and a footer on every page saying what's real and what's
+simulated.
+
+| Page | What it answers | Check against SQL |
+| --- | --- | --- |
+| 1. Executive summary | Five KPI cards, the renewal wave by month, 12 years of real rates | $8.40B, 0.58%, 0.10%, $244.9M, $28.3M (Q12) ✓ |
+| 2. Renewal cliff | Shock by year and band; old vs new rate for every renewing mortgage | 6,716 · $2.70B · 15.2 · 19.8 / 20.2 / 6.3 (Q1, Q2) ✓ |
+| 3. Where the risk sits | Provision per $1M by province; province × credit band; unemployment vs risk | $213 Saskatchewan, $63 Quebec, $211,222 total (Q4) ✓ |
+| 4. Portfolio performance | Delinquency by product; HELOCs vs prime; default rate heatmap; vintages | card × Below 600 12.66%, mortgage × 780+ 0.28% (Q8) ✓ |
+| 5. Outreach call list | Top 100 borrowers to call, in order | row 1 = loan 30258, Alberta, 586 (Q10) ✓ |
+| 6. Reality check | Simulated vs real CBA arrears; real unemployment | 0.219% real, 0.090% simulated, 0.41× (Q15) ✓ |
+| 7. Data quality | Every check and its result | 23 run, 23 passed (Q11) ✓ |
+
+![Executive summary](../images/dashboard/01_executive_summary.png)
+![Where the risk sits](../images/dashboard/03_where_the_risk_sits.png)
+![Reality check](../images/dashboard/06_reality_check.png)
+
+**What checking the first build caught** (and how it was fixed):
+
+| Issue | Why it mattered | Fix |
+| --- | --- | --- |
+| Renewing balance card showed "$3bn" | The real figure is $2.70bn; rounding to a whole billion overstates it by 11% | Cards show 2 decimals in billions |
+| Page 3 unemployment averaged every month since 2015 | It didn't match the analysis period (Newfoundland 12.2 vs 9.8 in Q4) | New measure limited to Apr 2023 – Sep 2026 |
+| Legend read "True / False" | Meaningless to a manager | A plain-words column: "Already renewed / Still to renew" |
+| Scatter bubbles sized by balance | 6,716 big bubbles overlapped into blobs | One even dot per mortgage |
+
+> **Lesson:** a dashboard is another place where numbers can go wrong. Check every card against the
+> query that produced it.
 
 ---
 

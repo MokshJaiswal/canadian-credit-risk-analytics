@@ -1,6 +1,7 @@
 # Power BI build guide
 
-Everything you need to build the dashboard from the CSVs in `powerbi/data/`.
+Everything you need to build the dashboard from the CSVs in `powerbi/data/`. The finished report is in
+`powerbi/CreditRiskDashboard/` (open the `.pbip`); this guide explains how it was built and how to check it.
 Every expected number below comes from **Q1–Q15 in `notebooks/03_build_warehouse.ipynb`** (or a
 query noted next to it), so you can check each visual against the SQL as you build.
 
@@ -174,6 +175,21 @@ DIVIDE (
 )
 
 Simulated vs Real = DIVIDE ( [Simulated Arrears Rate], [Real Arrears Rate] )
+
+-- Unemployment over the analysis window only (the months the loans are simulated).
+-- Use this next to provision figures; plain [Unemployment Rate] averages every month since 2015.
+Unemployment Rate (Analysis Window) =
+VAR FirstMonth = CALCULATE ( MIN ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+VAR LastMonth = CALCULATE ( MAX ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+RETURN
+    CALCULATE ( [Unemployment Rate], dim_month[month] >= FirstMonth, dim_month[month] <= LastMonth )
+```
+
+### Calculated column
+
+```dax
+-- On fact_renewal: plain words for chart legends instead of True / False
+renewal_status = IF ( fact_renewal[already_renewed], "Already renewed", "Still to renew" )
 ```
 
 ### Risk / vintage
@@ -212,7 +228,9 @@ Provenance Banner =
     & " held flat (assumption)"
 ```
 
-**Formats:** exposure and balances → currency, 0 decimals, display units Millions or Billions;
+**Formats:** on KPI cards set **Display units** and **Value decimal places** (Format → Callout value):
+billions with 2 decimals ($8.40bn, $2.70bn), millions with 1 ($244.9M). With 0 decimals the renewing
+balance shows "$3bn", which overstates $2.70bn. Elsewhere: exposure and balances → currency, 0 decimals;
 rates and shares → percentage, 2 decimals (arrears rates: 3 decimals); `Avg Payment Shock %` is
 already in percent units, so use a decimal with 1 decimal place and add "%" in the title;
 `Provision per $1M` → currency, 0 decimals.
@@ -237,7 +255,7 @@ The five KPI cards (five is the limit; a sixth means you haven't decided what ma
 Below the cards:
 
 - **Clustered column chart, "The renewal wave"**: X = `dim_month[month]` (2025–2027),
-  Y = `Renewing Balance`, Legend = `fact_renewal[already_renewed]`. Expected yearly totals:
+  Y = `Renewing Balance`, Legend = `fact_renewal[renewal_status]`. Expected yearly totals:
   2025 $852.8M · 2026 $900.8M · 2027 $950.0M.
 - **Line chart, "Real rates, 2015–2026"**: X = `dim_month[month]`, Y = `Avg Prime Rate` and
   `Avg Est Fixed Mortgage Rate`. Add a shaded band or annotation for Mar 2020 – Feb 2022 (low-rate era).
@@ -251,8 +269,9 @@ Below the cards:
   Expected: 2025 19.8 · 2026 20.2 · 2027 6.3.
 - **Bar chart:** X = `fact_renewal[shock_band]`, Y = `Renewing Balance`.
   Expected: 0-10% $726.5M · 10-25% $1,732.3M · Over 25% $244.9M.
-- **Scatter chart:** X = `old_rate`, Y = `new_rate`, Details = `loan_id`, Size = `balance_at_renewal`,
-  Legend = `renewal_year`. Points far above the diagonal are the shock.
+- **Scatter chart:** X = `old_rate`, Y = `new_rate`, Details = `loan_id`, Legend = `renewal_year`.
+  Leave **Size** empty: sizing 6,716 points by balance makes them overlap into blobs.
+  Points far above the diagonal are the shock.
 - **Insight title:** "Terms locked in 2020–21 at ~2% renew at ~4.2–4.6%: a ~20% higher payment."
 
 ### Page 3: Where the risk sits
@@ -264,8 +283,9 @@ Below the cards:
 - **Matrix:** Rows = `province_name`, Columns = `credit_band`, Values = `Incremental Provision`,
   with **conditional formatting → background colour**. Expected total **$211,222**; largest cell
   Ontario × 660-719 ($28,364).
-- **Table:** `province_name`, `real_arrears_factor`, `Unemployment Rate`, `Incremental Provision`,
-  `Provision per $1M`. It shows that the riskiest provinces aren't the ones with the highest unemployment.
+- **Table:** `province_name`, `real_arrears_factor`, `Unemployment Rate (Analysis Window)`,
+  `Incremental Provision`, `Provision per $1M`. It shows that the riskiest provinces aren't the ones
+  with the highest unemployment. Expected unemployment: Newfoundland 9.8, Saskatchewan 5.3, Quebec 5.3 (Q4).
 - **Insight title:** "Ontario holds the most provision; Saskatchewan carries the most per dollar."
 
 ### Page 4: Portfolio performance

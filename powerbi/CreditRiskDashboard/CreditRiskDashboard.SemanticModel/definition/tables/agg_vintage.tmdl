@@ -1,0 +1,80 @@
+/// SIMULATED loans and defaults by signing year x product.
+table agg_vintage
+	lineageTag: ffa744e1-8231-5757-a7a7-2106786bc620
+
+	column vintage_year
+		dataType: int64
+		formatString: 0
+		lineageTag: e92e0a96-fec1-5e24-b9c2-2c9012b6abca
+		summarizeBy: none
+		sourceColumn: vintage_year
+
+		annotation SummarizationSetBy = User
+
+	column product
+		dataType: string
+		isHidden
+		lineageTag: f4d75aca-606f-59d7-a4ab-0d4f9e6b16a2
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = User
+
+	column loans
+		dataType: int64
+		formatString: 0
+		lineageTag: a81f2028-0367-5fae-9b9c-f0ea54ff5741
+		summarizeBy: sum
+		sourceColumn: loans
+
+		annotation SummarizationSetBy = User
+
+	column original_balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 8226290a-faaa-5a45-9e88-e8ee3d4e774b
+		summarizeBy: sum
+		sourceColumn: original_balance
+
+		annotation SummarizationSetBy = User
+
+	column defaulted_loans
+		dataType: int64
+		formatString: 0
+		lineageTag: 045f0f0c-1498-5b0f-bb40-55b0d6fe9082
+		summarizeBy: sum
+		sourceColumn: defaulted_loans
+
+		annotation SummarizationSetBy = User
+
+	column defaulted_balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 86078b87-e985-54bc-a7d0-8118a5968425
+		summarizeBy: sum
+		sourceColumn: defaulted_balance
+
+		annotation SummarizationSetBy = User
+
+	column source
+		dataType: string
+		lineageTag: c978e068-1797-5f64-96cb-eb61ccb20376
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = User
+
+	partition agg_vintage = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "agg_vintage.csv"), [Delimiter = ",", Columns = 7, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"vintage_year", Int64.Type}, {"product", type text}, {"loans", Int64.Type}, {"original_balance", Currency.Type}, {"defaulted_loans", Int64.Type}, {"defaulted_balance", Currency.Type}, {"source", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

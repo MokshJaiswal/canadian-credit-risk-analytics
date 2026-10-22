@@ -1,0 +1,128 @@
+/// SIMULATED balances by month x product x province x credit band (Apr 2023 - Sep 2026).
+table agg_portfolio_monthly
+	lineageTag: fd26eb18-641b-59d6-b315-a3011712d8e1
+
+	column month
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: bdcf3bde-74f5-5aa7-9646-6e570e9cb50b
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product
+		dataType: string
+		isHidden
+		lineageTag: 11610b73-18ef-59c0-8710-396018807105
+		summarizeBy: none
+		sourceColumn: product
+
+		annotation SummarizationSetBy = User
+
+	column province
+		dataType: string
+		isHidden
+		lineageTag: cb9d43bc-d9b7-56cc-90ba-3b6b63d94616
+		summarizeBy: none
+		sourceColumn: province
+
+		annotation SummarizationSetBy = User
+
+	column credit_band
+		dataType: string
+		isHidden
+		lineageTag: 7a8a7ffc-c36e-5441-8ef9-255b7e155c95
+		summarizeBy: none
+		sourceColumn: credit_band
+
+		annotation SummarizationSetBy = User
+
+	column open_loans
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d4413ae-f5dc-5f3d-9085-388e86ba8fe5
+		summarizeBy: sum
+		sourceColumn: open_loans
+
+		annotation SummarizationSetBy = User
+
+	column balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: c2c843f4-7177-540f-bf89-ba9085b5ff73
+		summarizeBy: sum
+		sourceColumn: balance
+
+		annotation SummarizationSetBy = User
+
+	column delinquent_balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: e8a40151-65d8-559d-948b-e055099b50b0
+		summarizeBy: sum
+		sourceColumn: delinquent_balance
+
+		annotation SummarizationSetBy = User
+
+	column impaired_balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: da52bdc6-1a58-53b0-b312-233b15e35b95
+		summarizeBy: sum
+		sourceColumn: impaired_balance
+
+		annotation SummarizationSetBy = User
+
+	column defaulted_balance
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 6e96f478-e879-5abb-8f5f-4d993cb060b5
+		summarizeBy: sum
+		sourceColumn: defaulted_balance
+
+		annotation SummarizationSetBy = User
+
+	column delinquent_loans
+		dataType: int64
+		formatString: 0
+		lineageTag: 27de6aee-58a9-5056-a6ec-63f006af994d
+		summarizeBy: sum
+		sourceColumn: delinquent_loans
+
+		annotation SummarizationSetBy = User
+
+	column new_defaults
+		dataType: int64
+		formatString: 0
+		lineageTag: 289d7139-7e88-5591-a919-a2eade408f7a
+		summarizeBy: sum
+		sourceColumn: new_defaults
+
+		annotation SummarizationSetBy = User
+
+	column source
+		dataType: string
+		lineageTag: 3f8cb1aa-21c3-5db1-b541-d40fe0a5d3c9
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = User
+
+	partition agg_portfolio_monthly = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "agg_portfolio_monthly.csv"), [Delimiter = ",", Columns = 12, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"month", type date}, {"product", type text}, {"province", type text}, {"credit_band", type text}, {"open_loans", Int64.Type}, {"balance", Currency.Type}, {"delinquent_balance", Currency.Type}, {"impaired_balance", Currency.Type}, {"defaulted_balance", Currency.Type}, {"delinquent_loans", Int64.Type}, {"new_defaults", Int64.Type}, {"source", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,292 @@
+/// Home table for every measure (guide section 3). Folders follow the guide's headings.
+table _Measures
+	lineageTag: d94352de-cd38-5934-b036-6aa69e998ddb
+
+	/// Total balance outstanding (sums across months, so use the Latest Month version for a point in time).
+	measure Exposure = SUM ( agg_portfolio_monthly[balance] )
+		formatString: $#,0
+		displayFolder: 1 Portfolio
+		lineageTag: 01daeb16-a00d-5a1e-8dd1-7dd4f9fe0da8
+
+	/// Most recent month in the simulated portfolio data.
+	measure 'Latest Month' = MAX ( agg_portfolio_monthly[month] )
+		formatString: mmm yyyy
+		displayFolder: 1 Portfolio
+		lineageTag: b58acd71-b2cc-5ace-ba4e-fe6a97a96b86
+
+	/// Total balance in the latest month. KPI card: Total Exposure.
+	measure 'Exposure (Latest Month)' =
+			VAR LatestMonth = [Latest Month]
+			RETURN CALCULATE ( [Exposure], dim_month[month] = LatestMonth )
+		formatString: $#,0
+		displayFolder: 1 Portfolio
+		lineageTag: bccbfe6c-a399-5427-882a-48e5f2d66cb3
+
+	/// Delinquent (30-120 dpd) balance / balance. SUM over SUM, never an average of ratios.
+	measure 'Delinquency Rate' = DIVIDE ( SUM ( agg_portfolio_monthly[delinquent_balance] ), SUM ( agg_portfolio_monthly[balance] ) )
+		formatString: 0.00%
+		displayFolder: 1 Portfolio
+		lineageTag: 4f97d29b-2687-5f01-affe-88291d4473ff
+
+	/// Delinquency rate in the latest month.
+	measure 'Delinquency Rate (Latest Month)' =
+			VAR LatestMonth = [Latest Month]
+			RETURN CALCULATE ( [Delinquency Rate], dim_month[month] = LatestMonth )
+		formatString: 0.00%
+		displayFolder: 1 Portfolio
+		lineageTag: 612afab7-d1fa-569d-8f8f-1280b55181ab
+
+	/// Impaired (90-120 dpd) balance / balance.
+	measure 'Impaired Rate' = DIVIDE ( SUM ( agg_portfolio_monthly[impaired_balance] ), SUM ( agg_portfolio_monthly[balance] ) )
+		formatString: 0.00%
+		displayFolder: 1 Portfolio
+		lineageTag: baf224ed-2222-52c7-8b86-a1357ae6abb7
+
+	/// Impaired rate in the latest month.
+	measure 'Impaired Rate (Latest Month)' =
+			VAR LatestMonth = [Latest Month]
+			RETURN CALCULATE ( [Impaired Rate], dim_month[month] = LatestMonth )
+		formatString: 0.00%
+		displayFolder: 1 Portfolio
+		lineageTag: 2658210d-dc5e-584b-9c9d-2d03d2368066
+
+	/// Open loans in the latest month.
+	measure 'Open Loans (Latest Month)' =
+			VAR LatestMonth = [Latest Month]
+			RETURN CALCULATE ( SUM ( agg_portfolio_monthly[open_loans] ), dim_month[month] = LatestMonth )
+		formatString: #,0
+		displayFolder: 1 Portfolio
+		lineageTag: ee11fef2-f3d4-5164-8082-255973b0e430
+
+	/// Loans that defaulted in the period.
+	measure 'New Defaults' = SUM ( agg_portfolio_monthly[new_defaults] )
+		formatString: #,0
+		displayFolder: 1 Portfolio
+		lineageTag: 4d9b84e6-d770-54f9-9053-773a179d3b6f
+
+	/// Fixed mortgages renewing 2025-27.
+	measure 'Renewing Mortgages' = COUNTROWS ( fact_renewal )
+		formatString: #,0
+		displayFolder: 2 Renewal wave
+		lineageTag: fa4d8ef7-f688-58f9-909d-46c50881a8d0
+
+	/// Balance at renewal.
+	measure 'Renewing Balance' = SUM ( fact_renewal[balance_at_renewal] )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: ab1077f4-6021-5bb8-b937-ed1eeb485275
+
+	/// Renewing balance with payment shock over 25%. The headline KPI.
+	measure 'At-Risk Exposure' = CALCULATE ( [Renewing Balance], fact_renewal[is_severe_shock] = TRUE () )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: 3fd155a0-24ba-5a2f-b05e-4dc8aa5512fe
+
+	/// At-risk exposure as a share of renewing balance.
+	measure 'At-Risk Share' = DIVIDE ( [At-Risk Exposure], [Renewing Balance] )
+		formatString: 0.00%
+		displayFolder: 2 Renewal wave
+		lineageTag: 3e1cb88a-7fee-5166-80a2-e77975c75b34
+
+	/// Extra yearly payments households face (increases only).
+	measure 'Added Annual Payment Burden' =
+			SUMX (
+			    FILTER ( fact_renewal, fact_renewal[annual_payment_increase] > 0 ),
+			    fact_renewal[annual_payment_increase]
+			)
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: cd755a93-b705-54cc-a2cf-23b08cbba34c
+
+	/// Balance-weighted payment shock, already in percent units (15.2 = +15.2%). A $700k mortgage moves this more than a $150k one.
+	measure 'Avg Payment Shock %' =
+			DIVIDE (
+			    SUMX ( fact_renewal, fact_renewal[payment_shock_pct] * fact_renewal[balance_at_renewal] ),
+			    [Renewing Balance]
+			)
+		formatString: 0.0
+		displayFolder: 2 Renewal wave
+		lineageTag: c206181d-e19d-5b5a-a6e5-46b12cf6c96a
+
+	/// Median change in the monthly payment at renewal.
+	measure 'Median Monthly Increase' = MEDIAN ( fact_renewal[payment_increase] )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: 5b2ac9ae-82c3-5f6d-a77c-9a191b0e8176
+
+	/// Share of the wave that has already repriced (before Sep 2026).
+	measure 'Already Renewed %' = DIVIDE ( CALCULATE ( [Renewing Mortgages], fact_renewal[already_renewed] = TRUE () ), [Renewing Mortgages] )
+		formatString: 0.0%
+		displayFolder: 2 Renewal wave
+		lineageTag: 9b8a1113-6c19-5215-bf07-5b0baf7b160b
+
+	/// Extra provision implied by the renewal wave: expected loss after - before.
+	measure 'Incremental Provision' = SUM ( fact_renewal[incremental_provision] )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: 4123d62f-c8b0-5722-b04b-01e19af90614
+
+	/// Intensity: incremental provision per $1M of renewing balance. Compares provinces fairly whatever their size.
+	measure 'Provision per $1M' = DIVIDE ( [Incremental Provision], [Renewing Balance] ) * 1000000
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: db214128-5fcc-57ce-b87b-e1ad31acb7f5
+
+	/// Balance x PD x LGD before the rate jump.
+	measure 'Expected Loss Before' = SUM ( fact_renewal[expected_loss_before] )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: caf83445-8ea5-5f60-bcb7-8be91ae9df32
+
+	/// Balance x stressed PD x LGD after the rate jump.
+	measure 'Expected Loss After' = SUM ( fact_renewal[expected_loss_after] )
+		formatString: $#,0
+		displayFolder: 2 Renewal wave
+		lineageTag: 0f9986a8-ccf5-5ff3-bfd7-12c79614e664
+
+	/// Renewing borrowers the bank can still reach (not yet renewed, not defaulted).
+	measure 'Borrowers To Call' = CALCULATE ( [Renewing Mortgages], fact_renewal[can_contact] = TRUE () )
+		formatString: #,0
+		displayFolder: 2 Renewal wave
+		lineageTag: 5a850e75-e7c8-5617-8641-ca9692584b8b
+
+	/// Rate before renewal (%). One loan per point on the scatter.
+	measure 'Old Rate' = MAX ( fact_renewal[old_rate] )
+		formatString: 0.00
+		displayFolder: 2 Renewal wave\Scatter helpers
+		lineageTag: 82ccc54d-15d4-51a3-bea1-fbc108b1b342
+
+	/// Rate after renewal (%). One loan per point on the scatter.
+	measure 'New Rate' = MAX ( fact_renewal[new_rate] )
+		formatString: 0.00
+		displayFolder: 2 Renewal wave\Scatter helpers
+		lineageTag: 6e505a91-5937-50c8-9a3e-e05bd9a7bee6
+
+	/// REAL. Population-weighted unemployment rate (%), so a big province counts more.
+	measure 'Unemployment Rate' =
+			DIVIDE (
+			    SUMX ( fact_province_month, fact_province_month[unemployment_rate] * fact_province_month[population_thousands] ),
+			    SUM ( fact_province_month[population_thousands] )
+			)
+		formatString: 0.0
+		displayFolder: 3 Real economy & validation
+		lineageTag: b7c55a5f-3284-5c65-abcd-20ad6555d19f
+
+	/// REAL. Unemployment over the analysis window only (the months the loans are simulated), to match Q4.
+	measure 'Unemployment Rate (Analysis Window)' =
+			VAR FirstMonth = CALCULATE ( MIN ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+			VAR LastMonth = CALCULATE ( MAX ( agg_portfolio_monthly[month] ), REMOVEFILTERS () )
+			RETURN
+			    CALCULATE ( [Unemployment Rate], dim_month[month] >= FirstMonth, dim_month[month] <= LastMonth )
+		formatString: 0.0
+		displayFolder: 3 Real economy & validation
+		lineageTag: b18b0463-b2ad-417c-9413-c80c6051dabe
+
+	/// REAL (CBA). Mortgages 90+ days behind / mortgages.
+	measure 'Real Arrears Rate' = DIVIDE ( SUM ( arrears_validation[real_in_arrears] ), SUM ( arrears_validation[real_mortgages] ) )
+		formatString: 0.000%
+		displayFolder: 3 Real economy & validation
+		lineageTag: 18524a29-92d8-58fa-ad17-a991f8126b75
+
+	/// Simulated arrears rate, only over months where real data exists, so the two lines compare like with like.
+	measure 'Simulated Arrears Rate' =
+			DIVIDE (
+			    CALCULATE ( SUM ( arrears_validation[simulated_in_arrears] ), NOT ISBLANK ( arrears_validation[real_mortgages] ) ),
+			    CALCULATE ( SUM ( arrears_validation[simulated_mortgages] ), NOT ISBLANK ( arrears_validation[real_mortgages] ) )
+			)
+		formatString: 0.000%
+		displayFolder: 3 Real economy & validation
+		lineageTag: 96d2d71e-2d22-53cc-a911-4927ef078711
+
+	/// Simulated arrears rate as a multiple of the real one.
+	measure 'Simulated vs Real' = DIVIDE ( [Simulated Arrears Rate], [Real Arrears Rate] )
+		formatString: 0.00
+		displayFolder: 3 Real economy & validation
+		lineageTag: e2e8edb8-0505-5f4b-a97a-7be618d03349
+
+	/// REAL arrears factor for the province in context (used to colour the risk-per-dollar bars).
+	measure 'Real Arrears Factor' = MAX ( dim_province[real_arrears_factor] )
+		formatString: 0.00
+		displayFolder: 3 Real economy & validation
+		lineageTag: eee4dfb1-46d5-56e2-af5f-bd935b87831f
+
+	/// Defaulted loans / loans by signing year.
+	measure 'Vintage Default Rate' = DIVIDE ( SUM ( agg_vintage[defaulted_loans] ), SUM ( agg_vintage[loans] ) )
+		formatString: 0.00%
+		displayFolder: 4 Risk & vintage
+		lineageTag: a01a8057-b2cc-5cc7-b4e6-60b2958edbe9
+
+	/// 42-month default rate by product x credit band.
+	measure 'Default Rate 42m' = DIVIDE ( SUM ( pd_by_segment[defaulted_loans] ), SUM ( pd_by_segment[loans_in_cohort] ) )
+		formatString: 0.00%
+		displayFolder: 4 Risk & vintage
+		lineageTag: fb92b0bb-1897-5edd-93c5-89069ca18856
+
+	/// REAL Bank of Canada prime rate (%).
+	measure 'Avg Prime Rate' = AVERAGE ( dim_month[prime_rate] )
+		formatString: 0.00
+		displayFolder: 4 Risk & vintage
+		lineageTag: bb78e9af-d096-5f0b-b1cc-14074f878cbf
+
+	/// REAL 5-yr GoC yield + 1.40pp: what borrowers actually paid on a 5-year fixed (%).
+	measure 'Avg Est Fixed Mortgage Rate' = AVERAGE ( dim_month[est_5yr_fixed_mortgage_rate] )
+		formatString: 0.00
+		displayFolder: 4 Risk & vintage
+		lineageTag: 25823e8e-8a7d-510c-97ba-93599495b3c6
+
+	/// Data-quality checks run.
+	measure 'Checks Run' = COUNTROWS ( data_quality_checks )
+		formatString: #,0
+		displayFolder: 5 Data quality & provenance
+		lineageTag: da1e8573-60f2-5e67-9241-09c0c60d9253
+
+	/// Checks that passed.
+	measure 'Checks Passed' = CALCULATE ( [Checks Run], data_quality_checks[result] = "PASS" )
+		formatString: #,0
+		displayFolder: 5 Data quality & provenance
+		lineageTag: 06529591-6a79-568f-a2eb-2c20029e512b
+
+	/// Checks that failed (0, not blank, when none fail).
+	measure 'Checks Failed' = CALCULATE ( [Checks Run], data_quality_checks[result] = "FAIL" ) + 0
+		formatString: #,0
+		displayFolder: 5 Data quality & provenance
+		lineageTag: 7de152ec-63cf-545c-be04-6bae28973044
+
+	/// When the checks last ran.
+	measure 'Last Checked' = MAX ( data_quality_checks[checked_at] )
+		formatString: d mmm yyyy hh:nn
+		displayFolder: 5 Data quality & provenance
+		lineageTag: 25b034af-6847-516f-8f94-9dc0223c610a
+
+	/// Green for PASS, red for FAIL. Drives the conditional formatting on the checks table.
+	measure 'Result Colour' = IF ( SELECTEDVALUE ( data_quality_checks[result] ) = "FAIL", "#B3261E", "#2E7D32" )
+		displayFolder: 5 Data quality & provenance
+		lineageTag: 71acd2ea-2af0-540c-a65e-edf0e50db8bb
+
+	/// Every loan-data source in the current filter (never MIN/MAX a text column for this).
+	measure 'Loan Data Source' = CONCATENATEX ( VALUES ( agg_portfolio_monthly[source] ), agg_portfolio_monthly[source], ", " )
+		displayFolder: 5 Data quality & provenance
+		lineageTag: aaf7a7bc-d674-50a3-ad83-6a30674a7425
+
+	/// Footer on every page: what is simulated, what is real, and the flat-rate assumption.
+	measure 'Provenance Banner' =
+			"Loans: SIMULATED (not real customers)  |  Real data: Bank of Canada rates, Statistics Canada unemployment, "
+			    & "Canadian Bankers Association arrears  |  Rates after "
+			    & FORMAT ( CALCULATE ( MAX ( dim_month[month] ), dim_month[policy_rate] <> BLANK () ), "mmm yyyy" )
+			    & " held flat (assumption)"
+		displayFolder: 5 Data quality & provenance
+		lineageTag: 78ebfae2-899e-56c7-8c7b-e4e86d296733
+
+	column Value
+		isHidden
+		lineageTag: ded804ec-73cf-578d-becb-fd571098b5e9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = User
+
+	partition _Measures = calculated
+		mode: import
+		source = { BLANK () }
+

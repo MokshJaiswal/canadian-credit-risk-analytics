@@ -1,0 +1,104 @@
+/// One row per month, Jan 2015 - Dec 2027, with REAL Bank of Canada rates (blank for future months).
+table dim_month
+	lineageTag: c4e9b8c6-44ec-5146-af78-f6698b9cb72d
+
+	column month
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 730f4b59-9a31-5926-bc88-13c24f72c394
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 7e39fd9f-7f1a-5bdb-8eec-ce11945ea2fa
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = User
+
+	column quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 67a75b7c-119f-520c-9ec3-e8834e90de73
+		summarizeBy: none
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = User
+
+	column month_label
+		dataType: string
+		lineageTag: a89d0ff9-5b12-521b-9257-80fea482c5f4
+		summarizeBy: none
+		sourceColumn: month_label
+		sortByColumn: month
+
+		annotation SummarizationSetBy = User
+
+	column policy_rate
+		dataType: double
+		lineageTag: 8b9178d8-9983-5bb3-8a47-6d35b851ba84
+		summarizeBy: none
+		sourceColumn: policy_rate
+
+		annotation SummarizationSetBy = User
+
+	column prime_rate
+		dataType: double
+		lineageTag: a5e66531-4d56-5779-94c8-cfc102d4affd
+		summarizeBy: none
+		sourceColumn: prime_rate
+
+		annotation SummarizationSetBy = User
+
+	column goc_5yr_yield
+		dataType: double
+		lineageTag: 1b8aa90b-c145-5d26-8c66-cb51399afbff
+		summarizeBy: none
+		sourceColumn: goc_5yr_yield
+
+		annotation SummarizationSetBy = User
+
+	column posted_5yr_mortgage
+		dataType: double
+		lineageTag: 64cdb0cb-f29f-5cd9-b941-8711a52482b5
+		summarizeBy: none
+		sourceColumn: posted_5yr_mortgage
+
+		annotation SummarizationSetBy = User
+
+	column est_5yr_fixed_mortgage_rate
+		dataType: double
+		lineageTag: e23ade62-92fa-5232-be91-7b81117b4138
+		summarizeBy: none
+		sourceColumn: est_5yr_fixed_mortgage_rate
+
+		annotation SummarizationSetBy = User
+
+	column rate_source
+		dataType: string
+		lineageTag: da07f507-68ae-5e3b-bb7b-103fa89e47c5
+		summarizeBy: none
+		sourceColumn: rate_source
+
+		annotation SummarizationSetBy = User
+
+	partition dim_month = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dim_month.csv"), [Delimiter = ",", Columns = 10, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    // Empty cells mean 'no value' (e.g. real arrears not yet published, future-month rates)
+				    BlanksToNull = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Typed = Table.TransformColumnTypes(BlanksToNull, {{"month", type date}, {"year", Int64.Type}, {"quarter", Int64.Type}, {"month_label", type text}, {"policy_rate", type number}, {"prime_rate", type number}, {"goc_5yr_yield", type number}, {"posted_5yr_mortgage", type number}, {"est_5yr_fixed_mortgage_rate", type number}, {"rate_source", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

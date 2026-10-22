@@ -1,0 +1,56 @@
+relationship 54826514-b3ea-555f-b8ec-bd18d9d8d82f
+	fromColumn: agg_portfolio_monthly.month
+	toColumn: dim_month.month
+
+relationship 7a823b5c-2a03-532d-9652-9c2d5f80a50e
+	fromColumn: fact_renewal.renewal_month
+	toColumn: dim_month.month
+
+relationship 49e7fcbb-6792-5bc7-926b-ab8d7fa8f54f
+	fromColumn: fact_province_month.month
+	toColumn: dim_month.month
+
+relationship a63e6de8-fafe-5581-ad04-36fdc52c956f
+	fromColumn: arrears_validation.month
+	toColumn: dim_month.month
+
+relationship 09a71bb2-0315-505f-ab29-4dc2577d6524
+	fromColumn: agg_portfolio_monthly.province
+	toColumn: dim_province.province
+
+relationship c80f8620-a252-5f3c-badb-9918daa02134
+	fromColumn: fact_renewal.province
+	toColumn: dim_province.province
+
+relationship 2b983653-9558-5df6-8940-4fd1d4974bd6
+	fromColumn: fact_province_month.province
+	toColumn: dim_province.province
+
+relationship 64cd45c5-187a-5f2d-a547-50c45f8e6036
+	fromColumn: agg_portfolio_monthly.product
+	toColumn: dim_product.product
+
+relationship 91cc458c-6511-5136-9a3c-2841b3b9be17
+	fromColumn: fact_renewal.product
+	toColumn: dim_product.product
+
+relationship a689fa32-473e-5eb4-b281-287c246cb9b2
+	fromColumn: agg_vintage.product
+	toColumn: dim_product.product
+
+relationship 2135d8e4-84ad-5bae-8409-f03eb1947ae7
+	fromColumn: pd_by_segment.product
+	toColumn: dim_product.product
+
+relationship ba4b5d6c-6de3-5f2b-9df1-8f836438bd72
+	fromColumn: agg_portfolio_monthly.credit_band
+	toColumn: dim_credit_band.credit_band
+
+relationship a692b9ed-2eda-5f44-8d3e-82fb5f17333e
+	fromColumn: fact_renewal.credit_band
+	toColumn: dim_credit_band.credit_band
+
+relationship ae8eb294-97aa-58c9-9574-a86d625fffbb
+	fromColumn: pd_by_segment.credit_band
+	toColumn: dim_credit_band.credit_band
+
